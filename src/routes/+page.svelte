@@ -4,14 +4,14 @@
 	export let data: PageData;
 
 	const { players } = data;
-    const orderedPlayers = players.sort((a,b) => b.points - a.points)
+    const orderedPlayers = players.sort((a,b) => b.elo - a.elo)
 </script>
 
 <div class="flex flex-col">
 	<p class="text-lime-500 text-4xl font-bold uppercase">Avetint's League of Legends Leaderboard</p>
 
 	<div class="flex flex-col items-center gap-6 mt-8">
-		{#each players as player, i}
+		{#each orderedPlayers as player, i}
 			<div class="w-2/3 flex gap-4 align-middle items-center">
 				<span class="text-4xl text-center font-bold text-slate-200 w-11">{i + 1}</span>
 				<div
@@ -21,7 +21,7 @@
 					class:third={i === 2}
 				>
 					<p class="text-xl font-bold text-slate-100 w-1/2 text-left">{`${player.name}`}</p>
-					<p class="text-xl font-bold text-slate-100 w-1/4">{`${player.points}p`}</p>
+					<p class="text-xl font-bold text-slate-100 w-1/4">{`${player.elo} elo`}</p>
 					<p class="text-xl font-bold text-slate-100 w-1/4">{`${player.w} W - ${player.l} L`}</p>
 				</div>
 			</div>

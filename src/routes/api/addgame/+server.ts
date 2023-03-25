@@ -1,62 +1,47 @@
 import db from '$lib/db';
+import type { Game } from '$lib/types';
+import { calculateEloChange } from "./elo";
 import type { RequestHandler } from './$types';
-import type { Player } from '$lib/player';
-
-const DEFAULT_POINT_GAIN = 25;
 
 export const POST = (async ({ request }) => {
+	try {
+		const { winningTeam: winningTeamData, losingTeam: losingTeamData }: Game = await request.json();
+		const winningTeamNames = winningTeamData.map((p) => p.name);
+		const losingTeamNames = losingTeamData.map((p) => p.name);
 
-	// db.collection('players').updateMany({}, {
-	// 	$set: {
-	// 		points: 0,
-	// 		w: 0,
-	// 		l: 0
-	// 	}
-	// })
-	// return new Response();
-
-
-	const { winningTeamNames, losingTeamNames } = await request.json();
-
-	const getWinningTeam = winningTeamNames.map((name: string) =>
-		db.collection('players').findOne({ name })
-	);
-	const getLosingTeam = losingTeamNames.map((name: string) =>
-		db.collection('players').findOne({ name })
-	);
-	const winningTeam = await Promise.all(getWinningTeam);
-	const losingTeam = await Promise.all(getLosingTeam);
-
-	const pointsWinningTeam = winningTeam.reduce((acc, curr) => acc + curr.points, 0) / 5;
-	const pointsLosingTeam = losingTeam.reduce((acc, curr) => acc + curr.points, 0) / 5;
-	const teamDiff = (pointsWinningTeam - pointsLosingTeam) / DEFAULT_POINT_GAIN;
-
-	const pointsGain = DEFAULT_POINT_GAIN * (sigmoid(teamDiff / 25) + 0.5);
-
-	const updatePointsW = winningTeam.map((player: Player) => {
-		const diff = pointsWinningTeam - player.points;
-		const playerPointsGain = Math.round(pointsGain * (sigmoid(diff / 100) + 0.5));
-		return db.collection('players').findOneAndUpdate(
-			{ name: player.name },
-			{
-				$inc: { points: playerPointsGain, w: 1 }
-			}
+		const findWinningPlayers = winningTeamNames.map((name: string) =>
+			db.collection('players').findOne({ name })
 		);
-	});
-	await Promise.all(updatePointsW);
-	const updatePointsL = losingTeam.map((player: Player) => {
-		const diff = player.points - pointsLosingTeam;
-		const playerPointsGain = -Math.round(pointsGain * (sigmoid(diff / 100) + 0.5));
-		return db.collection('players').findOneAndUpdate(
-			{ name: player.name },
-			{
-				$inc: { points: playerPointsGain, l: 1 }
-			}
+		const findLosingPlayers = losingTeamNames.map((name: string) =>
+			db.collection('players').findOne({ name })
 		);
-	});
-	await Promise.all(updatePointsL);
+		const winningPlayers = await Promise.all(findWinningPlayers);
+		const losingPlayers = await Promise.all(findLosingPlayers);
 
-	return new Response();
+		if (winningPlayers.includes(null) || losingPlayers.includes(null)) {
+			return new Response('Some players were not found in the database.', { status: 400 });
+		}
+
+		//@ts-expect-error mdb types
+		const eloChanges = await calculateEloChange(winningPlayers, losingPlayers);
+
+		db.collection('games').insertOne({
+			winningTeam: winningTeamData.map((player) => {
+				return {
+					...player,
+					eloChange: Math.round(Number(eloChanges.find((p) => p.name === player.name)))
+				};
+			}),
+			losingTeam: losingTeamData.map((player) => {
+				return {
+					...player,
+					eloChange: Math.round(Number(eloChanges.find((p) => p.name === player.name)))
+				};
+			})
+		});
+		return new Response('Game results processed successfully.', { status: 200 });
+	} catch (error) {
+		console.error('Error processing game results:', error);
+		return new Response('An error occurred while processing game results.', { status: 500 });
+	}
 }) satisfies RequestHandler;
-
-const sigmoid = (x: number) => Math.pow(Math.E, x) / (Math.pow(Math.E, x) + 1);

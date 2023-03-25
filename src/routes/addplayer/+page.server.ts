@@ -1,19 +1,15 @@
-import db from '$lib/db'
-import type { PageServerLoad } from './$types'
+import db from '$lib/db';
+import type { Player } from '$lib/types';
+import type { PageServerLoad } from './$types';
 
 export const load = (async () => {
-    const dbPlayers = await db.collection('players').find().toArray()
-    const players = dbPlayers.map(player => {
-        const {name, points, w, l} = player
-        return {
-            name,
-            points,
-            w,
-            l
-        }
-    })
+	const dbPlayers = await db.collection('players').find().toArray();
+	const players: Player[] = dbPlayers.map((player) => {
+		const { name, elo, w, l } = player;
+		return { name, elo, w, l };
+	});
 
-    return {
-        players,
-    }
-}) satisfies PageServerLoad
+	return {
+		players
+	};
+}) satisfies PageServerLoad;
