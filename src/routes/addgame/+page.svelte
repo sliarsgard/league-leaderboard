@@ -2,6 +2,8 @@
 	import type { PageData } from './$types';
 	import PlayerInput from './PlayerInput.svelte';
 	import { setContext } from 'svelte';
+	import type { PlayerGameDataInput, Role } from '$lib/types';
+	import SelectChampion from './SelectChampion.svelte';
 
 	export let data: PageData;
 
@@ -9,43 +11,46 @@
 
 	const { players, champions } = data;
 
+	let bans = {
+		blue: ['', '', '', '', ''],
+		red: ['', '', '', '', '']
+	};
+
 	setContext(
 		'champions',
 		champions.filter((c: any) => c.id > 0)
 	);
 
-	interface PlayerGameData {
-		name: string;
-		champion: string;
-		k: string;
-		d: string;
-		a: string;
-	}
-	const getNewPlayerData = (): PlayerGameData => {
-		return { name: '', champion: '', k: '', d: '', a: '' };
+	const getNewPlayerData = (role: Role, team: 'blue' | 'red'): PlayerGameDataInput => {
+		return { name: '', champion: '', team, role, k: 0, d: 0, a: 0 };
+	};
+	const ROLES: Role[] = ['top', 'jng', 'mid', 'bot', 'sup'];
+
+	const generatePlayerDataArray = () => {
+		const arr = [];
+		for (let i = 0; i < 10; i++) {
+			const role = ROLES[i % 5];
+			const team = i < 5 ? 'blue' : 'red';
+			arr.push(getNewPlayerData(role, team));
+		}
+		return arr;
 	};
 
-	let playerData = [
-		getNewPlayerData(),
-		getNewPlayerData(),
-		getNewPlayerData(),
-		getNewPlayerData(),
-		getNewPlayerData(),
-		getNewPlayerData(),
-		getNewPlayerData(),
-		getNewPlayerData(),
-		getNewPlayerData(),
-		getNewPlayerData()
-	];
+	let playerData = generatePlayerDataArray();
 
 	const handleAddGame = async () => {
-		const team1 = playerData.filter((_, i) => i < 5);
-		const team2 = playerData.filter((_, i) => i >= 5);
+		const players = playerData.map((player, i) => {
+			return {
+				...player,
+				won: (i < 5 && winningTeam === 1) || (i >= 5 && winningTeam === 2)
+			};
+		});
+
 		fetch('/api/addgame', {
 			method: 'POST',
 			body: JSON.stringify({
-				winningTeam: winningTeam === 1 ? team1 : team2,
-				losingTeam: winningTeam === 1 ? team2 : team1
+				players,
+				bans
 			})
 		});
 	};
@@ -58,46 +63,55 @@
 			.filter((player) => !playerData.some((p) => p.name === player.name))
 			.map((p) => p.name) as string[];
 	};
-	setContext('filterPlayers', filterPlayers)
+
+	setContext('filterPlayers', filterPlayers);
 </script>
 
-<div class="flex flex-col gap-24">
-	<div class="flex gap-24 w-2/3 self-center">
-		<div class="flex flex-col gap-8 w-1/2">
-			<p class="text-center text-xl text-slate-100 font-bold">Team 1</p>
-			<PlayerInput {playersToSelect} playerData={playerData[0]} />
-			<PlayerInput {playersToSelect} playerData={playerData[1]} />
-			<PlayerInput {playersToSelect} playerData={playerData[2]} />
-			<PlayerInput {playersToSelect} playerData={playerData[3]} />
-			<PlayerInput {playersToSelect} playerData={playerData[4]} />
-		</div>
-		<div class="flex flex-col gap-8 w-1/2">
-			<p class="text-center text-xl text-slate-100 font-bold">Team 2</p>
-			<PlayerInput {playersToSelect} playerData={playerData[5]} />
-			<PlayerInput {playersToSelect} playerData={playerData[6]} />
-			<PlayerInput {playersToSelect} playerData={playerData[7]} />
-			<PlayerInput {playersToSelect} playerData={playerData[8]} />
-			<PlayerInput {playersToSelect} playerData={playerData[9]} />
-		</div>
+<div class="flex flex-col items-center px-8">
+	<p class="text-lime-500 text-4xl font-bold uppercase mb-4">Add Game</p>
+
+	<div class="grid grid-cols-2 gap-6">
+		{#each [0, 5] as teamStartIndex (teamStartIndex)}
+			<div class="flex flex-col items-center gap-4">
+				<div>
+					{#each Array(5)
+						.fill(null)
+						.map((_, i) => i) as banIndex}
+						<SelectChampion bind:selected={bans[teamStartIndex === 0 ? 'blue' : 'red'][banIndex]} />
+					{/each}
+				</div>
+				<p class="text-xl font-bold uppercase mb-4">
+					{teamStartIndex === 0 ? 'Blue Team' : 'Red Team'}
+				</p>
+				{#each Array(5)
+					.fill(null)
+					.map((_, i) => i + teamStartIndex) as playerIndex}
+					<PlayerInput
+						{playersToSelect}
+						playerData={playerData[playerIndex]}
+						class={`p-4 w-3/4 mx-auto rounded-xl border-2 text-center flex flex-col gap-2 ${
+							teamStartIndex === 0 ? 'blue' : 'red'
+						}`}
+					/>
+				{/each}
+			</div>
+		{/each}
 	</div>
-	<div class="w-2/3 flex self-center">
-		<div class="w-1/3 flex justify-end">
-			<button
-				class="p-2 bg-slate-400 rounded-lg w-full text-lg font-bold"
-				class:win={winningTeam === 1}
-				on:click={() => (winningTeam = 1)}>Team 1</button
-			>
-		</div>
-		<div class="w-1/3 text-center p-2 uppercase text-lime-500 font-bold text-xl">Winning Team</div>
-		<div class="w-1/3 flex justify-start">
-			<button
-				class="p-2 bg-slate-400 rounded-lg w-full text-lg font-bold"
-				class:win={winningTeam === 2}
-				on:click={() => (winningTeam = 2)}>Team 2</button
-			>
-		</div>
+
+	<div class="w-2/3 flex justify-center items-center gap-8 mt-8">
+		<button
+			class="p-2 bg-slate-400 rounded-lg w-1/3 text-lg font-bold"
+			class:win={winningTeam === 1}
+			on:click={() => (winningTeam = 1)}>Blue Team</button
+		>
+		<div class="text-center p-2 uppercase text-lime-500 font-bold text-xl">Winning Team</div>
+		<button
+			class="p-2 bg-slate-400 rounded-lg w-1/3 text-lg font-bold"
+			class:win={winningTeam === 2}
+			on:click={() => (winningTeam = 2)}>Red Team</button
+		>
 	</div>
-	<div class="w-2/3 flex self-center justify-center mb-24">
+	<div class="w-2/3 flex self-center justify-center mt-8">
 		<button
 			class="bg-slate-400 p-4 w-full rounded-md font-bold text-xl uppercase"
 			on:click={handleAddGame}>Add game</button

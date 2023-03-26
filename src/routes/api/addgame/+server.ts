@@ -1,41 +1,49 @@
 import db from '$lib/db';
-import type { Game } from '$lib/types';
-import { calculateEloChange } from "./elo";
+import type { GameDataInput, Player } from '$lib/types';
+import { calculateEloChange } from './elo';
 import type { RequestHandler } from './$types';
 
 export const POST = (async ({ request }) => {
 	try {
-		const { winningTeam: winningTeamData, losingTeam: losingTeamData }: Game = await request.json();
-		const winningTeamNames = winningTeamData.map((p) => p.name);
-		const losingTeamNames = losingTeamData.map((p) => p.name);
-
-		const findWinningPlayers = winningTeamNames.map((name: string) =>
-			db.collection('players').findOne({ name })
+		const { players, bans }: GameDataInput = await request.json();
+		const findPlayers = players.map((player) =>
+			db.collection('players').findOne({ name: player.name })
 		);
-		const findLosingPlayers = losingTeamNames.map((name: string) =>
-			db.collection('players').findOne({ name })
+		const dbPlayers = await Promise.all(findPlayers);
+		if (dbPlayers.includes(null)) {
+			return new Response('Some players were not found in the database.', { status: 400 });
+		}
+		const winningPlayers = dbPlayers.filter(
+			(player) => players.find((p) => p.name === player?.name)?.won
 		);
-		const winningPlayers = await Promise.all(findWinningPlayers);
-		const losingPlayers = await Promise.all(findLosingPlayers);
+		const losingPlayers = dbPlayers.filter(
+			(player) => !players.find((p) => p.name === player?.name)?.won
+		);
+		const eloChanges = await calculateEloChange(
+			toPlayers(winningPlayers),
+			toPlayers(losingPlayers)
+		);
 
 		if (winningPlayers.includes(null) || losingPlayers.includes(null)) {
 			return new Response('Some players were not found in the database.', { status: 400 });
 		}
 
-		//@ts-expect-error mdb types
-		const eloChanges = await calculateEloChange(winningPlayers, losingPlayers);
-
 		db.collection('games').insertOne({
-			winningTeam: winningTeamData.map((player) => {
+			bans,
+			players: players.map((player) => {
+				const dbPlayer = dbPlayers.find((p) => p?.name === player.name);
+				const eloChange = eloChanges.find((p) => p.name === player.name)?.playerEloChange;
 				return {
-					...player,
-					eloChange: Math.round(Number(eloChanges.find((p) => p.name === player.name)))
-				};
-			}),
-			losingTeam: losingTeamData.map((player) => {
-				return {
-					...player,
-					eloChange: Math.round(Number(eloChanges.find((p) => p.name === player.name)))
+					name: player.name,
+					champion: player.champion,
+					team: player.team,
+					role: player.role,
+					k: player.k,
+					d: player.d,
+					a: player.a,
+					won: player.won,
+					prevElo: dbPlayer?.elo ?? 1000 - (eloChange ?? 0),
+					eloChange
 				};
 			})
 		});
@@ -45,3 +53,12 @@ export const POST = (async ({ request }) => {
 		return new Response('An error occurred while processing game results.', { status: 500 });
 	}
 }) satisfies RequestHandler;
+
+const toPlayers = (dbPlayers: any[]): Player[] => {
+	return dbPlayers.map((p) => ({
+		elo: p.elo,
+		w: p.w,
+		l: p.l,
+		name: p.name
+	}));
+};

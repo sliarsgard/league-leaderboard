@@ -6,6 +6,7 @@ export const load = (async ({params}) => {
     const playerName = params.player
     const dbPlayer = await db.collection('players').findOne({name: playerName})
     if (!dbPlayer) return 
+    const dbGames = await db.collection('games').find({ 'player.name': playerName })
     const {name, points, w, l} = dbPlayer
     const player = {
         name,

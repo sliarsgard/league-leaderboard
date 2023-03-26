@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Label from "./Label.svelte";
+	import Label from './Label.svelte';
 
 	export let data: string[];
 
-	export let onSelect: () => void
+	export let onSelect: () => void;
 	export let selected: string;
 	let searchStr = '';
 	let active: boolean;
@@ -18,7 +18,7 @@
 		preselectedItem = '';
 		selected = item;
 		searchStr = item;
-		onSelect()
+		onSelect();
 	};
 
 	const handleChange = (_: any) => {
@@ -55,13 +55,13 @@
 		on:focus={() => (active = true)}
 		bind:value={searchStr}
 		type="text"
-		class="p-2 rounded-md bg-slate-200 outline-none w-full"
+		class="p-2 rounded-md bg-slate-200 text-slate-800 outline-none w-full"
 	/>
 	{#if active}
 		<div class="flex flex-col rounded-md overflow-hidden top-full absolute w-full z-10 shadow-xl">
 			{#each searchLst as item}
 				<button
-					class="bg-slate-400 p-2 font-semibold overflow-hidden hover:bg-lime-400 active:bg-lime-500"
+					class="bg-slate-500 p-2 font-semibold overflow-hidden hover:bg-lime-400 active:bg-lime-500 text-slate-100"
 					class:preselect={preselectedItem === item}
 					on:click={() => handleSelect(item)}
 				>

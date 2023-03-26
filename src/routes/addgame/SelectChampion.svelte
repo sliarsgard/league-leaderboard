@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext } from "svelte";
-	import Label from "../../lib/Label.svelte";
+	import Label from "../../lib/components/Label.svelte";
 
 	const champions = getContext('champions') as any[]
     const champURL = (id: number) => `https://cdn.communitydragon.org/latest/champion/${id}/square`
