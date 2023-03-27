@@ -1,18 +1,11 @@
-import db from '$lib/db'
-import type { Game } from '$lib/types'
+import { error } from '@sveltejs/kit';
+import supabase from '$lib/supabase'
 import type { PageServerLoad } from './$types'
 
 export const load = (async () => {
-    const dbGames = await db.collection('games').find().toArray()
-    const games: Game[] = dbGames.map(game => {
-        const {winningTeam, losingTeam} = game
-        return {
-            winningTeam,
-            losingTeam
-        }
-    })
+    const games = await supabase.from('games').select('*, player_game_data(*)')
+    if (games.error || games.data === null) throw error(500, games.error.message)
+    if (games.data.length === 0) throw error(404, 'No games found')
+    return { games: games.data }
 
-    return {
-        games,
-    }
 }) satisfies PageServerLoad

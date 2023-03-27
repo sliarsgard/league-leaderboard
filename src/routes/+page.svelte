@@ -4,14 +4,37 @@
 	export let data: PageData;
 
 	const { players } = data;
-    const orderedPlayers = players.sort((a,b) => b.elo - a.elo)
+
+	const getTier = (elo: number) => {
+		if (elo >= 2400) {
+			return 'Challenger';
+		} else if (elo >= 1800) {
+			return 'Grandmaster';
+		} else if (elo >= 1500) {
+			return 'Master';
+		} else if (elo >= 1300) {
+			return 'Diamond';
+		} else if (elo >= 1100) {
+			return 'Platinum';
+		} else if (elo >= 900) {
+			return 'Gold';
+		} else if (elo >= 700) {
+			return 'Silver';
+		} else if (elo >= 500) {
+			return 'Bronze';
+		} else {
+			return 'Iron';
+		}
+	}
+	const getTierUrl = (elo: number) => 
+		`https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests/${getTier(elo).toLowerCase()}.png`
 </script>
 
-<div class="flex flex-col">
+<div class="flex flex-col pb-16">
 	<p class="text-lime-500 text-4xl font-bold uppercase">Avetint's League of Legends Leaderboard</p>
 
 	<div class="flex flex-col items-center gap-6 mt-8">
-		{#each orderedPlayers as player, i}
+		{#each players as player, i}
 			<div class="w-2/3 flex gap-4 align-middle items-center">
 				<span class="text-4xl text-center font-bold text-slate-200 w-11">{i + 1}</span>
 				<div
@@ -20,7 +43,14 @@
 					class:second={i === 1}
 					class:third={i === 2}
 				>
-					<p class="text-xl font-bold text-slate-100 w-1/2 text-left">{`${player.name}`}</p>
+					<span class="text-xl font-bold text-slate-100 w-1/2 text-left flex gap-2">
+						<img
+							src={getTierUrl(player.elo)}
+							alt={getTier(player.elo)}
+							class="w-8 h-8"
+						/>
+						<span class="">{`${player.name}`}</span>
+					</span>
 					<p class="text-xl font-bold text-slate-100 w-1/4">{`${player.elo} elo`}</p>
 					<p class="text-xl font-bold text-slate-100 w-1/4">{`${player.w} W - ${player.l} L`}</p>
 				</div>

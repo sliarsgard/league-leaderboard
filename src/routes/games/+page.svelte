@@ -9,7 +9,7 @@
 <div>
     {#each games as game}
         <div>
-            {#each game.winningTeam as player}
+            {#each game.player_game_data as player}
                 <div>{player.name}</div>
             {/each}
         </div>

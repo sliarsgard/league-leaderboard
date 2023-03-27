@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 	import PlayerInput from './PlayerInput.svelte';
 	import { setContext } from 'svelte';
-	import type { PlayerGameDataInput, Role } from '$lib/types';
+	import type { GameDataInput, PlayerGameDataInput, Role } from '$lib/types';
 	import SelectChampion from './SelectChampion.svelte';
 
 	export let data: PageData;
@@ -12,17 +12,17 @@
 	const { players, champions } = data;
 
 	let bans = {
-		blue: ['', '', '', '', ''],
-		red: ['', '', '', '', '']
+		blue: [0, 0, 0, 0, 0],
+		red: [0, 0, 0, 0, 0]
 	};
 
 	setContext(
 		'champions',
-		champions.filter((c: any) => c.id > 0)
+		champions
 	);
 
 	const getNewPlayerData = (role: Role, team: 'blue' | 'red'): PlayerGameDataInput => {
-		return { name: '', champion: '', team, role, k: 0, d: 0, a: 0 };
+		return { id: 0, champion: 0, team, role, k: 0, d: 0, a: 0 };
 	};
 	const ROLES: Role[] = ['top', 'jng', 'mid', 'bot', 'sup'];
 
@@ -46,21 +46,23 @@
 			};
 		});
 
-		fetch('/api/addgame', {
+		const data: GameDataInput = {
+			players,
+			bans
+		}
+
+		await fetch('/api/addgame', {
 			method: 'POST',
-			body: JSON.stringify({
-				players,
-				bans
-			})
+			body: JSON.stringify(data)
 		});
 	};
 
 	let playersToSelect = players
-		.filter((player) => !playerData.some((p) => p.name === player.name))
+		.filter((player) => !playerData.some((p) => p.id === player.id))
 		.map((p) => p.name) as string[];
 	const filterPlayers = () => {
 		playersToSelect = players
-			.filter((player) => !playerData.some((p) => p.name === player.name))
+			.filter((player) => !playerData.some((p) => p.id === player.id))
 			.map((p) => p.name) as string[];
 	};
 

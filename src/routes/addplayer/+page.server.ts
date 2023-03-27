@@ -1,15 +1,11 @@
-import db from '$lib/db';
-import type { Player } from '$lib/types';
+import supabase from '$lib/supabase';
+import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load = (async () => {
-	const dbPlayers = await db.collection('players').find().toArray();
-	const players: Player[] = dbPlayers.map((player) => {
-		const { name, elo, w, l } = player;
-		return { name, elo, w, l };
-	});
-
+	const players = await supabase.from('players').select('name')
+	if (!players.data) throw error(500, 'Supabase error')
 	return {
-		players
+		players: players.data.map(player => player.name),
 	};
 }) satisfies PageServerLoad;

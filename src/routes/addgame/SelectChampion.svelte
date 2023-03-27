@@ -1,29 +1,40 @@
 <script lang="ts">
-	import { getContext } from "svelte";
-	import Label from "../../lib/components/Label.svelte";
+	import { getContext } from 'svelte';
+	import Label from '../../lib/components/Label.svelte';
 
-	const champions = getContext('champions') as any[]
-    const champURL = (id: number) => `https://cdn.communitydragon.org/latest/champion/${id}/square`
+	const champions = (getContext('champions') as any[]).sort((a, b) => {
+		if (a.name < b.name) return -1;
+		if (a.name > b.name) return 1;
+		return 0;
+	}).sort((a,b) => {
+		if (a.id === -1) return -1;
+		if (b.id === -1) return 1;
+		return 0;
+	});
+	const champURL = (id: number) => `https://cdn.communitydragon.org/latest/champion/${id === -1 ? 'generic' : id}/square`;
 
-	export let selected: string;
+	export let selected: number;
 	let searchStr = '';
 	let active: boolean;
 
 	let searchLst = champions;
 	$: handleChange(searchStr);
-	$: searchLst = champions.filter((i: any) => i.name.toLowerCase().includes(searchStr.toLowerCase()));
-	$: preselectedItem = searchLst.length && searchLst[0].name;
+	$: searchLst = champions.filter((i: any) =>
+		i.name.toLowerCase().includes(searchStr.toLowerCase())
+	);
+	$: preselectedItem = searchLst.length && searchLst[0].id;
 
-	const handleSelect = (item: string) => {
+	const handleSelect = (item: number) => {
+		console.log({item})
 		active = false;
-		preselectedItem = '';
+		preselectedItem = 0;
 		selected = item;
-		searchStr = item;
+		searchStr = champions.find((c) => c.id === item).name;
 	};
 
 	const handleChange = (_: any) => {
-		if (selected && selected !== searchStr) {
-			selected = '';
+		if (selected && selected !== champions.find((c) => c.name === searchStr).id) {
+			selected = 0;
 			active = true;
 		}
 	};
@@ -33,13 +44,14 @@
 
 		if (searchLst.length) {
 			if (e.key === 'ArrowDown') {
-				if (!preselectedItem) return (preselectedItem = searchLst[0].name);
-				const itemIndex = searchLst.findIndex(i => i.name === preselectedItem);
-				if (searchLst.length > itemIndex + 1) return (preselectedItem = searchLst[itemIndex + 1].name);
+				if (!preselectedItem) return (preselectedItem = searchLst[0].id);
+				const itemIndex = searchLst.findIndex((i) => i.id === preselectedItem);
+				if (searchLst.length > itemIndex + 1)
+					return (preselectedItem = searchLst[itemIndex + 1].id);
 			} else if (e.key === 'ArrowUp') {
-				if (!preselectedItem) return (preselectedItem = searchLst[0].name);
-				const itemIndex = searchLst.findIndex(i => i.name === preselectedItem);
-				if (itemIndex > 0) return (preselectedItem = searchLst[itemIndex - 1].name);
+				if (!preselectedItem) return (preselectedItem = searchLst[0].id);
+				const itemIndex = searchLst.findIndex((i) => i.id === preselectedItem);
+				if (itemIndex > 0) return (preselectedItem = searchLst[itemIndex - 1].id);
 			} else if (e.key === 'Enter') {
 				if (preselectedItem) handleSelect(preselectedItem);
 			}
@@ -62,10 +74,10 @@
 			{#each searchLst as item}
 				<button
 					class="bg-slate-400 p-2 font-semibold overflow-hidden flex hover:bg-lime-400 active:bg-lime-500 items-center"
-					class:preselect={preselectedItem === item.name}
-					on:click={() => handleSelect(item.name)}
+					class:preselect={preselectedItem === item.id}
+					on:click={() => handleSelect(item.id)}
 				>
-                    <img src={champURL(item.id)} alt={item.name} class="w-6 h-6 mr-2" />
+					<img src={champURL(item.id)} alt={item.name} class="w-6 h-6 mr-2" />
 					{item.name}
 				</button>
 			{/each}
