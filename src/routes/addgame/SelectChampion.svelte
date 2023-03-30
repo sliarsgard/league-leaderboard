@@ -25,7 +25,6 @@
 	$: preselectedItem = searchLst.length && searchLst[0].id;
 
 	const handleSelect = (item: number) => {
-		console.log({item})
 		active = false;
 		preselectedItem = 0;
 		selected = item;
@@ -40,8 +39,6 @@
 	};
 
 	const handleKeypress = (e: KeyboardEvent) => {
-		console.log(e.key);
-
 		if (searchLst.length) {
 			if (e.key === 'ArrowDown') {
 				if (!preselectedItem) return (preselectedItem = searchLst[0].id);

@@ -49,7 +49,7 @@
 			<a href={`/player/${player.id}`} class="w-2/3 flex gap-4 align-middle items-center">
 				<span class="text-4xl text-center font-bold text-slate-200 w-11">{i + 1}</span>
 				<div
-					class="p-4 w-full rounded-xl border-4 border-lime-400 bg-opacity-10 bg-lime-400 text-center flex"
+					class="p-4 w-full rounded-xl border-4 border-lime-400 bg-opacity-10 bg-lime-400 text-center flex hover:bg-opacity-20 active:bg-opacity-30"
 					class:first={i === 0}
 					class:second={i === 1}
 					class:third={i === 2}
@@ -72,12 +72,12 @@
 
 <style lang="postcss">
 	.first {
-		@apply border-yellow-400 shadow-lg shadow-yellow-300 bg-opacity-10 bg-yellow-300;
+		@apply border-yellow-400 shadow-lg shadow-yellow-300 bg-opacity-10 bg-yellow-300 hover:bg-opacity-20 active:bg-opacity-30;
 	}
 	.second {
-		@apply border-neutral-400 shadow-lg shadow-neutral-300 bg-opacity-10 bg-neutral-300;
+		@apply border-neutral-400 shadow-lg shadow-neutral-300 bg-opacity-10 bg-neutral-300 hover:bg-opacity-20 active:bg-opacity-30;
 	}
 	.third {
-		@apply border-orange-400 shadow-lg shadow-orange-300 bg-opacity-10 bg-orange-300;
+		@apply border-orange-400 shadow-lg shadow-orange-300 bg-opacity-10 bg-orange-300 hover:bg-opacity-20 active:bg-opacity-30;
 	}
 </style>

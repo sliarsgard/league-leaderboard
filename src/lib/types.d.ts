@@ -20,6 +20,13 @@ export interface PlayerGameDataInput {
 	a: number;
 }
 
+export interface Champion {
+	id: number;
+	name: string;
+	alias: string;
+	squarePortraitPath: string;
+}
+
 export interface PlayerGameDataProp extends PlayerGameDataInput {
 	won: boolean;
 }

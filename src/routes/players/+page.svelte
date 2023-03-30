@@ -12,7 +12,6 @@
 			'postgres_changes',
 			{ event: '*', schema: 'public', table: 'players' },
 			(payload) => {
-				console.log(payload);
 				if (payload.eventType === 'INSERT') players = [...players, payload.new];
 				else if (payload.eventType === 'DELETE')
 					players = players.filter((player) => player.id !== payload.old.id);

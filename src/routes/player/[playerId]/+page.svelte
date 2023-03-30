@@ -67,14 +67,10 @@
 								precision: 0,
 								color: '#000'
 							},
-							grid: {
-								color: '#333'
-							}
+							grid: { color: '#3335' }
 						},
 						y: {
-							grid: {
-								color: '#333'
-							},
+							grid: { color: '#3335' },
 							ticks: { color: '#000' }
 						}
 					},
@@ -103,8 +99,9 @@
 			<span>Game History</span>
 		</div>
 		{#each playerGameData.reverse() as gameData}
-			<div
-				class="flex items-center gap-4 bg-slate-500 rounded-md p-4 w-full border-l-4"
+			<a
+				href={`/game/${gameData.game_id}`}
+				class="flex items-center gap-4 bg-slate-500 rounded-md p-4 w-full border-l-4 hover:bg-slate-400 active:bg-slate-300"
 				class:win-border={gameData.elo_change >= 0}
 				class:lose-border={gameData.elo_change < 0}
 			>
@@ -133,7 +130,7 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			</a>
 		{/each}
 	</div>
 </div>

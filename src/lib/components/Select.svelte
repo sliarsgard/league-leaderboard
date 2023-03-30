@@ -46,7 +46,6 @@
 			selected = null;
 			active = true;
 		}
-		console.log(searchLst.length)
 		if (searchLst.length === 0)
 			addNew = [{id: -1,name: `Add new player "${searchStr}"`,elo: 0}]
 		else if (searchLst.length > 0)
@@ -54,8 +53,6 @@
 	};
 
 	const handleKeypress = (e: KeyboardEvent) => {
-		console.log(e.key);
-
 		if (searchLst.length) {
 			if (e.key === 'ArrowDown') {
 				if (!preselectedItem) return (preselectedItem = searchLst[0]);

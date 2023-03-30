@@ -43,7 +43,6 @@
 	supabase
 		.channel('any')
 		.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'players' }, (payload) => {
-			console.log('Change received!', payload);
 			const newPlayer: Player = {
 				name: payload.new.name,
 				id: payload.new.id,

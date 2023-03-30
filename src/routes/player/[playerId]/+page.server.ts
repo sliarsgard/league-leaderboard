@@ -1,17 +1,12 @@
 import supabase from '$lib/supabase';
-import type { Game, Player, PlayerGameData } from '$lib/types';
+import type { Champion, Game, Player, PlayerGameData } from '$lib/types';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 interface PlayerPageGameData extends PlayerGameData {
 	games: Game;
 }
-interface Champion {
-	id: number;
-	name: string;
-	alias: string;
-	squarePortraitPath: string;
-}
+
 interface ReturnType {
 	champions: Champion[];
 	player: Player;
@@ -36,8 +31,6 @@ export const load = (async ({ params }): Promise<ReturnType> => {
 	const championData = await fetch(url, { method: 'GET' });
 	const champions = await championData.json();
 
-	//@ts-expect-error - this is a bug in the supabase typings
-	console.log(playerGameData.length);
 	if (playerGameData.data === null) return { champions, player: player.data, playerGameData: [] };
 	//@ts-expect-error - this is a bug in the supabase typings
 	else if (!playerGameData.data.length)
