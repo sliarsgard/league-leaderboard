@@ -25,6 +25,7 @@ export interface PlayerGameDataProp extends PlayerGameDataInput {
 }
 
 export type PlayerGameData = Database['public']['Tables']['player_game_data']['Row'];
+export type PlayerGameDataInsert = Database['public']['Tables']['player_game_data']['Insert'];
 
 export interface Player {
 	created_at: string;

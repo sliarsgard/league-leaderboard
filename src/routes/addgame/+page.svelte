@@ -2,24 +2,22 @@
 	import type { PageData } from './$types';
 	import PlayerInput from './PlayerInput.svelte';
 	import { setContext } from 'svelte';
-	import type { GameDataInput, PlayerGameDataInput, Role } from '$lib/types';
+	import type { PlayerGameDataInput, Role } from '$lib/types';
 	import SelectChampion from './SelectChampion.svelte';
+	import supabase from '$lib/supabase';
 
 	export let data: PageData;
 
 	let winningTeam = 0;
 
-	const { players, champions } = data;
+	let { players, champions } = data;
 
 	let bans = {
 		blue: [0, 0, 0, 0, 0],
 		red: [0, 0, 0, 0, 0]
 	};
 
-	setContext(
-		'champions',
-		champions
-	);
+	setContext('champions', champions);
 
 	const getNewPlayerData = (role: Role, team: 'blue' | 'red'): PlayerGameDataInput => {
 		return { id: 0, champion: 0, team, role, k: 0, d: 0, a: 0 };
@@ -36,6 +34,25 @@
 		return arr;
 	};
 
+	interface Player {
+		name: string;
+		elo: number;
+		id: number;
+	}
+
+	supabase
+		.channel('any')
+		.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'players' }, (payload) => {
+			console.log('Change received!', payload);
+			const newPlayer: Player = {
+				name: payload.new.name,
+				id: payload.new.id,
+				elo: payload.new.elo
+			};
+			players = [...players, newPlayer];
+		})
+		.subscribe();
+
 	let playerData = generatePlayerDataArray();
 
 	const handleAddGame = async () => {
@@ -46,24 +63,30 @@
 			};
 		});
 
-		const data: GameDataInput = {
-			players,
-			bans
-		}
-
 		await fetch('/api/addgame', {
 			method: 'POST',
-			body: JSON.stringify(data)
+			body: JSON.stringify({
+				players,
+				bans
+			})
 		});
 	};
 
-	let playersToSelect = players
+	$: playersToSelect = players
 		.filter((player) => !playerData.some((p) => p.id === player.id))
-		.map((p) => p.name) as string[];
+		.sort((a, b) => {
+			if (b.name.toLowerCase() > a.name.toLowerCase()) return -1;
+			if (b.name.toLowerCase() < a.name.toLowerCase()) return 1;
+			return 0;
+		});
 	const filterPlayers = () => {
 		playersToSelect = players
 			.filter((player) => !playerData.some((p) => p.id === player.id))
-			.map((p) => p.name) as string[];
+			.sort((a, b) => {
+				if (b.name.toLowerCase() > a.name.toLowerCase()) return -1;
+				if (b.name.toLowerCase() < a.name.toLowerCase()) return 1;
+				return 0;
+			});
 	};
 
 	setContext('filterPlayers', filterPlayers);
