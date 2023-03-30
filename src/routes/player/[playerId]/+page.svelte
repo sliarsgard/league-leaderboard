@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { Line } from 'svelte-chartjs';
-	import {Chart, registerables} from 'chart.js'
+	import { Chart, registerables } from 'chart.js';
 
-	Chart.register(...registerables)
+	Chart.register(...registerables);
 
 	export let data: PageData;
 	const { champions, player, playerGameData } = data;
@@ -19,12 +19,17 @@
 		bot: 'ADC',
 		sup: 'Support'
 	};
-	const eloData = playerGameData.map((game) => game.elo_change)
-	const eloOverTime = eloData.reduce((acc: number[], cur) => {
-		acc.push((acc[acc.length - 1] || player.elo) + cur);
-		return acc;
-	}, []);
-	const gameNumbers = playerGameData.map((_, index) => index + 1)
+	const eloData = playerGameData
+		.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+		.map((game) => game.elo_change);
+	const eloOverTime = [
+		1000,
+		...eloData.reduce((acc: number[], cur) => {
+			acc.push((acc[acc.length - 1] || 1000) + cur);
+			return acc;
+		}, [])
+	];
+	const gameNumbers = [0, ...playerGameData.map((_, index) => index + 1)];
 </script>
 
 <div class="flex gap-16">
