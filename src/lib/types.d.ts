@@ -1,43 +1,45 @@
-export type Role = 'top'|'jng'|'mid'|'bot'|'sup'
+import type { Database } from "./database";
+
+export type Role = 'top' | 'jng' | 'mid' | 'bot' | 'sup';
 
 export interface GameDataInput {
-    players: PlayerGameDataProp[]
-    bans: {
-        "blue": string[]
-        "red": string
-    }
+	players: PlayerGameDataProp[];
+	bans: {
+		blue: number[];
+		red: number[];
+	};
 }
 
 export interface PlayerGameDataInput {
-    name: string
-    champion: string
-    team: 'blue' | 'red'
-    role: Role
-    k: number
-    d: number
-    a: number
+	id: number;
+	champion: number;
+	team: 'blue' | 'red';
+	role: Role;
+	k: number;
+	d: number;
+	a: number;
 }
 
 export interface PlayerGameDataProp extends PlayerGameDataInput {
-    won: boolean
+	won: boolean;
 }
 
-export interface PlayerGameData extends PlayerGameDataProp {
-    prevElo: number
-    eloChange: number
-}
+export type PlayerGameData = Database['public']['Tables']['player_game_data']['Row'];
+export type PlayerGameDataInsert = Database['public']['Tables']['player_game_data']['Insert'];
 
 export interface Player {
-    name: string
-    elo: number
-    w: number
-    l: number
+	created_at: string;
+	elo: number;
+	id: number;
+	l: number;
+	name: string;
+	w: number;
 }
 
 export interface Game {
-    bans: {
-        blue: string[]
-        red: string[]
-    }
-    players: PlayerGameData[]
+	bans: {
+		blue: string[];
+		red: string[];
+	};
+	players: PlayerGameData[];
 }

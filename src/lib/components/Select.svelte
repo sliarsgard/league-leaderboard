@@ -1,31 +1,56 @@
 <script lang="ts">
 	import Label from './Label.svelte';
 
-	export let data: string[];
+	interface Player {
+		name: string;
+		elo: number;
+		id: number;
+	}
+	
+	export let data: Player[];
 
 	export let onSelect: () => void;
-	export let selected: string;
+	export let selectedId: number;
+	let selected: Player | null = null;
 	let searchStr = '';
 	let active: boolean;
+	let addNew: Player[] = []
+
+	$: if (selected) selectedId = selected.id
 
 	let searchLst = data;
+	$: searchLst = data.filter((i) => i.name.toLowerCase().includes(searchStr.toLowerCase()) && i.id > 0);
 	$: handleChange(searchStr);
-	$: searchLst = data.filter((i) => i.toLowerCase().includes(searchStr.toLowerCase()));
 	$: preselectedItem = searchLst.length && searchLst[0];
 
-	const handleSelect = (item: string) => {
-		active = false;
-		preselectedItem = '';
-		selected = item;
-		searchStr = item;
-		onSelect();
+	const handleSelect = async (item: Player) => {
+		if (item.id === -1) {
+			const res = await fetch(`/api/addplayer?name=${searchStr}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+			searchStr = '';
+		} else {
+			selected = item;
+			searchStr = item.name;
+			active = false;
+			preselectedItem = 0;
+			onSelect();
+		}
 	};
 
 	const handleChange = (_: any) => {
-		if (selected && selected !== searchStr) {
-			selected = '';
+		if (selected?.id && selected.name !== searchStr) {
+			selected = null;
 			active = true;
 		}
+		console.log(searchLst.length)
+		if (searchLst.length === 0)
+			addNew = [{id: -1,name: `Add new player "${searchStr}"`,elo: 0}]
+		else if (searchLst.length > 0)
+			addNew = []
 	};
 
 	const handleKeypress = (e: KeyboardEvent) => {
@@ -59,13 +84,13 @@
 	/>
 	{#if active}
 		<div class="flex flex-col rounded-md overflow-hidden top-full absolute w-full z-10 shadow-xl">
-			{#each searchLst as item}
+			{#each [...searchLst, ...addNew] as item}
 				<button
 					class="bg-slate-500 p-2 font-semibold overflow-hidden hover:bg-lime-400 active:bg-lime-500 text-slate-100"
-					class:preselect={preselectedItem === item}
+					class:preselect={preselectedItem === item.id}
 					on:click={() => handleSelect(item)}
 				>
-					{item}
+					{item.name}
 				</button>
 			{/each}
 		</div>

@@ -3,10 +3,10 @@
 
 	export let data: PageData;
 
-	const { game, champImages } = data;
-	const { players } = game;
+	const { game, champImages, banChampImages, players } = data;
+	const { player_game_data } = game;
 
-	const roleNames = {
+	const roleNames: {[key: string]: string} = {
 		top: 'Top',
 		jng: 'Jungle',
 		mid: 'Mid',
@@ -14,12 +14,11 @@
 		sup: 'Support'
 	};
 
-	const getImage = (champion: string) => champImages.find((c) => c.name === champion)?.url;
+	const getImage = (champion: number) => champImages.find((c) => c.id === champion)?.url;
 
-	const blueTeam = players.filter((player) => player.team === 'blue');
-	const redTeam = players.filter((player) => player.team === 'red');
-	const blueTeamWon = blueTeam.some((player) => player.won);
-	const winningTeam = blueTeamWon ? 'Blue' : 'Red';
+	const blueTeam = players.filter((player) => player.blue_team);
+	const redTeam = players.filter((player) => !player.blue_team);
+	const winningTeam = game.blue_team_win ? 'Blue' : 'Red';
 </script>
 
 <div class="flex flex-col items-center">
@@ -36,7 +35,7 @@
 					<div class="flex items-center gap-4">
 						<img src={getImage(player.champion)} alt={`${player.champion}`} class="w-16 h-16" />
 						<div>
-							<p class="text-xl font-bold text-slate-100">{`${player.name}`}</p>
+							<p class="text-xl font-bold text-slate-100">{`${player.players.name}`}</p>
 							<p class="text-lg font-bold text-slate-100">
 								{`${player.champion} - ${roleNames[player.role]}`}
 							</p>
@@ -45,11 +44,11 @@
 					<div class="flex gap-4">
 						<p class="text-lg font-bold text-slate-100 w-1/2">
 							<span class="font-bold">K/D/A:</span>
-							{`${player.k} / ${player.d} / ${player.a}`}
+							{`${player.kills} / ${player.deaths} / ${player.assists}`}
 						</p>
 						<p class="text-lg font-bold text-slate-100 w-1/2">
 							<span class="font-bold">Elo:</span>
-							{`${player.prevElo} (${player.eloChange > 0 ? '+' : ''}${player.eloChange})`}
+							{`(${player.elo_change > 0 ? '+' : ''}${player.elo_change})`}
 						</p>
 					</div>
 				</div>
@@ -65,7 +64,7 @@
 					<div class="flex items-center gap-4">
 						<img src={getImage(player.champion)} alt={`${player.champion}`} class="w-16 h-16" />
 						<div>
-							<p class="text-xl font-bold text-slate-100">{`${player.name}`}</p>
+							<p class="text-xl font-bold text-slate-100">{`${player.players.name}`}</p>
 							<p class="text-lg font-bold text-slate-100">
 								{`${player.champion} - ${roleNames[player.role]}`}
 							</p>
@@ -74,11 +73,11 @@
 					<div class="flex gap-4">
 						<p class="text-lg font-bold text-slate-100 w-1/2">
 							<span class="font-bold">K/D/A:</span>
-							{`${player.k} / ${player.d} / ${player.a}`}
+							{`${player.kills} / ${player.deaths} / ${player.assists}`}
 						</p>
 						<p class="text-lg font-bold text-slate-100 w-1/2">
 							<span class="font-bold">Elo:</span>
-							{`${player.prevElo} (${player.eloChange > 0 ? '+' : ''}${player.eloChange})`}
+							{`(${player.elo_change > 0 ? '+' : ''}${player.elo_change})`}
 						</p>
 					</div>
 				</div>
