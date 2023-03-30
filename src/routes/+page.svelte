@@ -1,9 +1,10 @@
 <script lang="ts">
+	import supabase from '$lib/supabase';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
-	const { players } = data;
+	let { players } = data;
 
 	const getTier = (elo: number) => {
 		if (elo >= 2400) {
@@ -26,6 +27,15 @@
 			return 'Iron';
 		}
 	}
+
+	supabase
+		.channel('any')
+		.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'players' }, (payload) => {
+			console.log('Change received!', payload);
+			// @ts-expect-error - this is a hack to get around the fact that the payload is not typed
+			players = players.map((player) => player.id === payload.new.id ? payload.new : player);
+		}).subscribe();
+
 	const getTierUrl = (elo: number) => 
 		`https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests/${getTier(elo).toLowerCase()}.png`
 </script>
