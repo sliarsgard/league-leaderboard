@@ -1,5 +1,9 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import { Line } from 'svelte-chartjs';
+	import {Chart, registerables} from 'chart.js'
+
+	Chart.register(...registerables)
 
 	export let data: PageData;
 	const { champions, player, playerGameData } = data;
@@ -12,71 +16,124 @@
 		top: 'Top',
 		jng: 'Jungle',
 		mid: 'Mid',
-		adc: 'ADC',
+		bot: 'ADC',
 		sup: 'Support'
 	};
+	const eloData = playerGameData.map((game) => game.elo_change)
+	const eloOverTime = eloData.reduce((acc: number[], cur) => {
+		acc.push((acc[acc.length - 1] || player.elo) + cur);
+		return acc;
+	}, []);
+	const gameNumbers = playerGameData.map((_, index) => index + 1)
 </script>
 
 <div class="flex gap-16">
-	<div class="flex flex-col gap-4 w-60">
+	<div class="flex flex-col gap-4 w-[20rem]">
 		<div class="bg-lime-500 rounded-md font-bold text-slate-800 uppercase p-4">
 			<span>{player.name}</span>
 		</div>
-		<div class="flex flex-col gap-2 bg-slate-500 rounded-md">
+		<div class="flex flex-col gap-2 p-2 bg-slate-500 rounded-md font-semibold">
 			<div class="stats-row">
-				<span>Elo:</span>
+				<span>Elo</span>
 				<span>{player.elo}</span>
 			</div>
 			<div class="stats-row">
-				<span>Wins:</span>
+				<span>Wins</span>
 				<span>{player.w}</span>
 			</div>
 			<div class="stats-row">
-				<span>Losses:</span>
+				<span>Losses</span>
 				<span>{player.l}</span>
 			</div>
 		</div>
+		<div class="bg-slate-500 rounded-md p-2">
+			<Line
+				options={{
+					scales: {
+						x: {
+							type: 'linear',
+							title: {
+								display: true,
+								color: '#000',
+								text: 'Games'
+							},
+							ticks: {
+								stepSize: 1,
+								precision: 0,
+								color: '#000'
+							},
+							grid: {
+								color: '#333'
+							}
+						},
+						y: {
+							grid: {
+								color: '#333'
+							},
+							ticks: { color: '#000' }
+						}
+					},
+					plugins: {
+						legend: { display: false }
+					}
+				}}
+				data={{
+					labels: gameNumbers,
+					datasets: [
+						{
+							label: 'Elo Over Time',
+							data: eloOverTime,
+							borderColor: 'rgb(14 165 233)',
+							backgroundColor: 'rgb(14 165 233)',
+							borderWidth: 2,
+							tension: 0
+						}
+					]
+				}}
+			/>
+		</div>
 	</div>
-	<div class="flex flex-col gap-4 w-80">
+	<div class="flex flex-col gap-4 w-[30rem]">
 		<div class="bg-sky-500 rounded-md font-bold text-slate-800 uppercase p-4">
 			<span>Game History</span>
 		</div>
-		{#each playerGameData as gameData}
-			<div class="flex flex-col gap-2 bg-slate-500 rounded-md p-4">
-				<div class="stats-row">
-					<span>Game ID:</span>
-					<span>{gameData.game_id}</span>
+		{#each playerGameData.reverse() as gameData}
+			<div
+				class="flex items-center gap-4 bg-slate-500 rounded-md p-4 w-full border-l-4"
+				class:win-border={gameData.elo_change >= 0}
+				class:lose-border={gameData.elo_change < 0}
+			>
+				<div class="w-16">
+					<img
+						src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${gameData.champion}.png`}
+						alt={getChampionName(gameData.champion)}
+						class="w-12 h-12 object-cover rounded-full"
+					/>
 				</div>
-				<div class="stats-row">
-					<span>Champion:</span>
-					<span>{getChampionName(gameData.champion)}</span>
-				</div>
-				<div class="stats-row">
-					<span>Role:</span>
-					<span>{roleNames[gameData.role] || gameData.role}</span>
-				</div>
-				<div class="stats-row">
-					<span>Kills:</span>
-					<span>{gameData.kills}</span>
-				</div>
-				<div class="stats-row">
-					<span>Deaths:</span>
-					<span>{gameData.deaths}</span>
-				</div>
-				<div class="stats-row">
-					<span>Assists:</span>
-					<span>{gameData.assists}</span>
-				</div>
-				<div class="stats-row">
-					<span>Elo Change:</span>
-					<span>{gameData.elo_change}</span>
+				<div class="flex flex-col w-full">
+					<div class="flex justify-between">
+						<div class="font-bold">{getChampionName(gameData.champion)}</div>
+						<div class="font-bold">
+							{`${gameData.kills}/${gameData.deaths}/${gameData.assists}`}
+						</div>
+					</div>
+					<div class="flex justify-between">
+						<div class="font-bold">{roleNames[gameData.role] || gameData.role}</div>
+						<div
+							class="col-span-3 font-bold"
+							class:win={gameData.elo_change >= 0}
+							class:lose={gameData.elo_change < 0}
+						>
+							{gameData.elo_change >= 0 ? `+${gameData.elo_change}` : gameData.elo_change} elo
+						</div>
+					</div>
 				</div>
 			</div>
 		{/each}
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	.stats-row {
 		display: flex;
 		justify-content: space-between;
@@ -88,5 +145,17 @@
 	}
 	.stats-row span {
 		display: block;
+	}
+	.win {
+		@apply text-lime-400;
+	}
+	.lose {
+		@apply text-rose-400;
+	}
+	.win-border {
+		@apply border-lime-400;
+	}
+	.lose-border {
+		@apply border-rose-400;
 	}
 </style>
