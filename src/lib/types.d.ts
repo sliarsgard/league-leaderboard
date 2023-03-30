@@ -24,17 +24,18 @@ export interface PlayerGameDataProp extends PlayerGameDataInput {
 	won: boolean;
 }
 
+export type Player = Database['public']['Tables']['players']['Row']; 
 export type PlayerGameData = Database['public']['Tables']['player_game_data']['Row'];
 export type PlayerGameDataInsert = Database['public']['Tables']['player_game_data']['Insert'];
 
-export interface Player {
-	created_at: string;
-	elo: number;
-	id: number;
-	l: number;
-	name: string;
-	w: number;
-}
+// export interface Player {
+// 	created_at: string;
+// 	elo: number;
+// 	id: number;
+// 	l: number;
+// 	name: string;
+// 	w: number;
+// }
 
 export interface Game {
 	bans: {
