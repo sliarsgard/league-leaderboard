@@ -11,8 +11,6 @@
 		})
 		.subscribe();
 
-	let loading = false;
-
 	let playerList: Player[] = [];
 
 	let team1: Player[] = [];
