@@ -31,9 +31,10 @@
 	supabase
 		.channel('any')
 		.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'players' }, (payload) => {
-			console.log('Change received!', payload);
 			// @ts-expect-error - this is a hack to get around the fact that the payload is not typed
-			players = players.map((player) => player.id === payload.new.id ? payload.new : player);
+			players = players
+				.map((player) => player.id === payload.new.id ? payload.new : player)
+				.sort((a, b) => b.elo - a.elo);
 		}).subscribe();
 
 	const getTierUrl = (elo: number) => 
