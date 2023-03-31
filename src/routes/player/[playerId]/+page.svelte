@@ -45,7 +45,7 @@
 	};
 </script>
 
-<div class="flex gap-16">
+<div class="flex gap-16 mb-8">
 	<div class="flex flex-col gap-4 w-[20rem]">
 		<div
 			class="bg-slate-500 border-b-4 border-cyan-500 text-2xl text-cyan-500 rounded-md font-bold p-4"
