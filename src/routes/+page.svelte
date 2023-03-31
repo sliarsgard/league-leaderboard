@@ -18,19 +18,21 @@
 		.subscribe();
 </script>
 
-<div class="flex flex-col pb-16">
-	<p class="text-lime-500 text-4xl font-bold uppercase">Avetint's League of Legends Leaderboard</p>
+<div class="flex flex-col items-center pb-16">
+	<p class="text-emerald-400 px-4 py-4 border-b-4 border-emerald-500 rounded-md text-5xl font-bold uppercase">Avetint's Leaderboard</p>
 
-	<div class="flex flex-col items-center gap-6 mt-8">
+	<div class="flex flex-col items-center gap-6 mt-8 w-[60rem]">
 		{#each players as player, i}
 			<a
 				data-sveltekit-preload-data
 				href={`/player/${player.id}`}
 				class="w-2/3 flex gap-4 align-middle items-center"
 			>
-				<span class="text-4xl text-center font-bold text-slate-200 w-11">{i + 1}</span>
+				<span class="text-4xl text-center font-bold text-slate-200 w-11"class:first={i === 0}
+				class:second={i === 1}
+				class:third={i === 2}>{i + 1}</span>
 				<div
-					class="p-4 w-full rounded-xl border-4 border-lime-400 bg-opacity-10 bg-lime-400 text-center flex hover:bg-opacity-20 active:bg-opacity-30"
+					class="p-4 w-full rounded-xl border-4 border-emerald-400 bg-opacity-10 bg-emerald-400 text-center flex hover:bg-opacity-20 active:bg-opacity-30"
 					class:first={i === 0}
 					class:second={i === 1}
 					class:third={i === 2}
@@ -48,13 +50,22 @@
 </div>
 
 <style lang="postcss">
-	.first {
+	div.first {
 		@apply border-yellow-400 shadow-lg shadow-yellow-300 bg-opacity-10 bg-yellow-300 hover:bg-opacity-20 active:bg-opacity-30;
 	}
-	.second {
+	div.second {
 		@apply border-neutral-400 shadow-lg shadow-neutral-300 bg-opacity-10 bg-neutral-300 hover:bg-opacity-20 active:bg-opacity-30;
 	}
-	.third {
+	div.third {
 		@apply border-orange-400 shadow-lg shadow-orange-300 bg-opacity-10 bg-orange-300 hover:bg-opacity-20 active:bg-opacity-30;
+	}
+	span.first {
+		@apply text-yellow-400;
+	}
+	span.second {
+		@apply text-neutral-400;
+	}
+	span.third {
+		@apply text-orange-400;
 	}
 </style>
