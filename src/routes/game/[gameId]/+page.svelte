@@ -46,7 +46,11 @@
 							class="w-12 h-12 object-cover"
 						/>
 						<div class="flex flex-col justify-start">
-							<a href={`/player/${player.player_id}`} class="font-bold hover:underline">{player.players.name}</a>
+							<a
+								data-sveltekit-preload-data
+								href={`/player/${player.player_id}`}
+								class="font-bold hover:underline">{player.players.name}</a
+							>
 							<div class="font-semibold">{player.kills}/{player.deaths}/{player.assists}</div>
 						</div>
 					</div>
@@ -76,8 +80,14 @@
 				{#each redTeam as player}
 					<div class="flex items-center justify-end gap-2 p-3">
 						<div class="flex flex-col justify-end">
-							<a href={`/player/${player.player_id}`} class="font-bold hover:underline">{player.players.name}</a>
-							<div class="text-right font-semibold">{player.kills}/{player.deaths}/{player.assists}</div>
+							<a
+								data-sveltekit-preload-data
+								href={`/player/${player.player_id}`}
+								class="font-bold hover:underline">{player.players.name}</a
+							>
+							<div class="text-right font-semibold">
+								{player.kills}/{player.deaths}/{player.assists}
+							</div>
 						</div>
 						<img
 							src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${player.champion}.png`}

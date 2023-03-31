@@ -26,19 +26,22 @@
 		} else {
 			return 'Iron';
 		}
-	}
+	};
 
 	supabase
 		.channel('any')
 		.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'players' }, (payload) => {
 			// @ts-expect-error - this is a hack to get around the fact that the payload is not typed
 			players = players
-				.map((player) => player.id === payload.new.id ? payload.new : player)
+				.map((player) => (player.id === payload.new.id ? payload.new : player))
 				.sort((a, b) => b.elo - a.elo);
-		}).subscribe();
+		})
+		.subscribe();
 
-	const getTierUrl = (elo: number) => 
-		`https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests/${getTier(elo).toLowerCase()}.png`
+	const getTierUrl = (elo: number) =>
+		`https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests/${getTier(
+			elo
+		).toLowerCase()}.png`;
 </script>
 
 <div class="flex flex-col pb-16">
@@ -46,7 +49,11 @@
 
 	<div class="flex flex-col items-center gap-6 mt-8">
 		{#each players as player, i}
-			<a href={`/player/${player.id}`} class="w-2/3 flex gap-4 align-middle items-center">
+			<a
+				data-sveltekit-preload-data
+				href={`/player/${player.id}`}
+				class="w-2/3 flex gap-4 align-middle items-center"
+			>
 				<span class="text-4xl text-center font-bold text-slate-200 w-11">{i + 1}</span>
 				<div
 					class="p-4 w-full rounded-xl border-4 border-lime-400 bg-opacity-10 bg-lime-400 text-center flex hover:bg-opacity-20 active:bg-opacity-30"
@@ -55,11 +62,7 @@
 					class:third={i === 2}
 				>
 					<span class="text-xl font-bold text-slate-100 w-1/2 text-left flex gap-2">
-						<img
-							src={getTierUrl(player.elo)}
-							alt={getTier(player.elo)}
-							class="w-8 h-8"
-						/>
+						<img src={getTierUrl(player.elo)} alt={getTier(player.elo)} class="w-8 h-8" />
 						<span class="">{`${player.name}`}</span>
 					</span>
 					<p class="text-xl font-bold text-slate-100 w-1/4">{`${player.elo} elo`}</p>

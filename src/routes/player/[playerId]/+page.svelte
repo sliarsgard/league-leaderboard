@@ -6,7 +6,8 @@
 	Chart.register(...registerables);
 
 	export let data: PageData;
-	const { champions, player, playerGameData } = data;
+	const { champions, player, playerGameData, chart, playedWithPlayers } = data;
+	console.log('playerGameData Client', playerGameData);
 
 	const getChampionName = (id: number) => {
 		const champion = champions.find((champ) => champ.id === id);
@@ -19,22 +20,36 @@
 		bot: 'ADC',
 		sup: 'Support'
 	};
-	const eloData = playerGameData
-		.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-		.map((game) => game.elo_change);
-	const eloOverTime = [
-		1000,
-		...eloData.reduce((acc: number[], cur) => {
-			acc.push((acc[acc.length - 1] || 1000) + cur);
-			return acc;
-		}, [])
-	];
-	const gameNumbers = [0, ...playerGameData.map((_, index) => index + 1)];
+
+	let sortedListOfPlayers = playedWithPlayers;
+
+	let curretSort = 'games-desc';
+	const sortByGamesPlayed = () => {
+		if (curretSort === 'games-desc') {
+			sortedListOfPlayers = playedWithPlayers.sort((a, b) => a.games - b.games);
+			curretSort = 'games-asc';
+		} else {
+			sortedListOfPlayers = playedWithPlayers.sort((a, b) => b.games - a.games);
+			curretSort = 'games-desc';
+		}
+	};
+
+	const sortByWinrate = () => {
+		if (curretSort === 'winrate-desc') {
+			sortedListOfPlayers = playedWithPlayers.sort((a, b) => a.wins / a.games - b.wins / b.games);
+			curretSort = 'winrate-asc';
+		} else {
+			sortedListOfPlayers = playedWithPlayers.sort((a, b) => b.wins / b.games - a.wins / a.games);
+			curretSort = 'winrate-desc';
+		}
+	};
 </script>
 
 <div class="flex gap-16">
 	<div class="flex flex-col gap-4 w-[20rem]">
-		<div class="bg-lime-500 rounded-md font-bold text-slate-800 uppercase p-4">
+		<div
+			class="bg-slate-500 border-b-4 border-cyan-500 text-2xl text-cyan-500 rounded-md font-bold p-4"
+		>
 			<span>{player.name}</span>
 		</div>
 		<div class="flex flex-col gap-2 p-2 bg-slate-500 rounded-md font-semibold">
@@ -51,55 +66,52 @@
 				<span>{player.l}</span>
 			</div>
 		</div>
-		<div class="bg-slate-500 rounded-md p-2">
-			<Line
-				options={{
-					scales: {
-						x: {
-							type: 'linear',
-							title: {
-								display: true,
-								color: '#000',
-								text: 'Games'
-							},
-							ticks: {
-								stepSize: 1,
-								precision: 0,
-								color: '#000'
-							},
-							grid: { color: '#3335' }
-						},
-						y: {
-							grid: { color: '#3335' },
-							ticks: { color: '#000' }
-						}
-					},
-					plugins: {
-						legend: { display: false }
-					}
-				}}
-				data={{
-					labels: gameNumbers,
-					datasets: [
-						{
-							label: 'Elo Over Time',
-							data: eloOverTime,
-							borderColor: 'rgb(14 165 233)',
-							backgroundColor: 'rgb(14 165 233)',
-							borderWidth: 2,
-							tension: 0
-						}
-					]
-				}}
-			/>
+		<div class="bg-slate-500 rounded-md p-2 h-56">
+			<Line options={chart.options} data={chart.data} />
+		</div>
+		<div class="flex flex-col gap-4">
+			<div
+				class="bg-slate-500 border-b-4 border-emerald-500 text-xl uppercase text-emerald-500 rounded-md font-bold p-4"
+			>
+				<span>Played with</span>
+			</div>
+			<div class="bg-slate-500 p-4 divide-y divide-slate-400 rounded-md">
+				<div class="grid grid-cols-4 gap-4 font-bold text-slate-800 mb-2">
+					<div class="col-span-2">Name</div>
+					<button class="text-right hover:underline" on:click={sortByGamesPlayed}>Games</button>
+					<button class="text-right hover:underline" on:click={sortByWinrate}>Winrate</button>
+				</div>
+				{#each sortedListOfPlayers as playedWithPlayer}
+					<div class="grid mt-1 grid-cols-4 gap-4 text-slate-800 font-bold">
+						<a
+							data-sveltekit-reload
+							href={`/player/${playedWithPlayer.id}`}
+							class="col-span-2 hover:underline">{playedWithPlayer.name}</a
+						>
+						<div class="text-right">{playedWithPlayer.games}</div>
+						<div
+							class="text-right"
+							class:win-text={playedWithPlayer.wins / playedWithPlayer.games >= 0.5}
+							class:lose-text={playedWithPlayer.wins / playedWithPlayer.games < 0.5}
+						>
+							{`${(
+								Math.round((playedWithPlayer.wins / playedWithPlayer.games) * 1000) / 10
+							).toFixed(1)}%`}
+						</div>
+					</div>
+				{/each}
+			</div>
 		</div>
 	</div>
 	<div class="flex flex-col gap-4 w-[30rem]">
-		<div class="bg-sky-500 rounded-md font-bold text-slate-800 uppercase p-4">
+		<div
+			class="bg-slate-500 border-b-4 border-amber-500 text-amber-500 text-xl rounded-md font-bold uppercase p-4"
+		>
 			<span>Game History</span>
 		</div>
-		{#each playerGameData.reverse() as gameData}
+		{#each playerGameData as gameData}
 			<a
+				data-sveltekit-preload-data
 				href={`/game/${gameData.game_id}`}
 				class="flex items-center gap-4 bg-slate-500 rounded-md p-4 w-full border-l-4 hover:bg-slate-400 active:bg-slate-300"
 				class:win-border={gameData.elo_change >= 0}
@@ -159,5 +171,11 @@
 	}
 	.lose-border {
 		@apply border-rose-400;
+	}
+	.win-text {
+		@apply text-lime-500;
+	}
+	.lose-text {
+		@apply text-rose-500;
 	}
 </style>
