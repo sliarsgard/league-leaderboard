@@ -7,6 +7,7 @@
 	import PlayedWith from './PlayedWith.svelte';
 	import Champions from './Champions.svelte';
 	import Roles from './Roles.svelte';
+	import { getTier, getTierUrl } from '$lib/util';
 
 	Chart.register(...registerables);
 
@@ -14,31 +15,8 @@
 	const { champions, player, playerGameData, chart, playedWithPlayers } = data;
 	setContext('champions', champions);
 
-	const getTier = (elo: number) => {
-		if (elo >= 2400) {
-			return 'Challenger';
-		} else if (elo >= 1800) {
-			return 'Grandmaster';
-		} else if (elo >= 1500) {
-			return 'Master';
-		} else if (elo >= 1300) {
-			return 'Diamond';
-		} else if (elo >= 1100) {
-			return 'Platinum';
-		} else if (elo >= 900) {
-			return 'Gold';
-		} else if (elo >= 700) {
-			return 'Silver';
-		} else if (elo >= 500) {
-			return 'Bronze';
-		} else {
-			return 'Iron';
-		}
-	};
-	const getTierUrl = (elo: number) =>
-		`https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests/${getTier(
-			elo
-		).toLowerCase()}.png`;
+	
+	
 </script>
 
 <div class="flex gap-16 mb-8">
