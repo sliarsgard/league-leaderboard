@@ -74,7 +74,7 @@
 		</div>
 		<div class="flex flex-col gap-4 w-full">
 			<div class="rounded-md font-bold text-slate-800 uppercase p-2 text-center bg-rose-500 w-80">
-				Blue Team
+				Red Team
 			</div>
 			<div class="border-r-4 border-rose-500 bg-slate-500 rounded-md divide-y divide-rose-500">
 				{#each redTeam as player}

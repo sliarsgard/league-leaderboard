@@ -4,7 +4,7 @@ import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import type { ChartData, ChartOptions, Point } from 'chart.js';
 
-interface PlayerPageGameData extends PlayerGameData {
+export interface PlayerPageGameData extends PlayerGameData {
 	games: Game;
 }
 
