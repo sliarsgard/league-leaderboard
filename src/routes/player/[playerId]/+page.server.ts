@@ -63,6 +63,7 @@ export const load = (async ({ params }) => {
 							return acc;
 						//@ts-expect-error - this is a bug in the supabase typings
 						const profilePlayer = game.data.player_game_data?.find(
+							//@ts-expect-error - this is a bug in the supabase typings
 							(player) => player.player_id === playerId
 						);
 						const blueTeam = profilePlayer?.blue_team;
@@ -98,6 +99,7 @@ export const load = (async ({ params }) => {
 	games.forEach((game) => {
 		//@ts-expect-error - this is a bug in the supabase typings
 		const blueTeam = game.data?.player_game_data?.find(
+			//@ts-expect-error - this is a bug in the supabase typings
 			(player) => player.player_id === playerId
 		)?.blue_team;
 		//@ts-expect-error - this is a bug in the supabase typings
