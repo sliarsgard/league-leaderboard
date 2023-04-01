@@ -1,7 +1,8 @@
 <script lang="ts">
+	import type { Player } from '$lib/types';
+	import type { PageData } from './$types';
 	import supabase from '$lib/supabase';
 	import { getTier, getTierUrl } from '$lib/util';
-	import type { PageData } from './$types';
 
 	export let data: PageData;
 
@@ -9,8 +10,7 @@
 
 	supabase
 		.channel('any')
-		.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'players' }, (payload) => {
-			// @ts-expect-error - this is a hack to get around the fact that the payload is not typed
+		.on<Player>('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'players' }, (payload) => {
 			players = players
 				.map((player) => (player.id === payload.new.id ? payload.new : player))
 				.sort((a, b) => b.elo - a.elo);

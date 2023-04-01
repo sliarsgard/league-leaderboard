@@ -32,7 +32,7 @@ export const load = (async ({ params }) => {
 		//@ts-expect-error - this is a bug in the supabase typings
 		playerGameData.data = [playerGameData.data as PlayerPageGameData];
 
-	const eloData = playerGameData.data.map((game) => game.elo_change);
+	const eloData = playerGameData.data.map((game) => game.elo_change).slice().reverse();
 	const eloOverTime = [
 		1000,
 		...eloData.reduce((acc: number[], cur) => {
