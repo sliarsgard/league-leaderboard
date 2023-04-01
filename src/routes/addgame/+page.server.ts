@@ -12,10 +12,10 @@ interface ReturnType {
 }
 
 export const load = (async ({ fetch, locals }): Promise<ReturnType> => {
-	const { supabase } = locals;
-	const auth = await supabase.auth.getSession();
-	console.log('auth', auth);
-	if (!auth.data) redirect(300, '/login');
+	const { supabase, getSession } = locals;
+	const session = await getSession();
+	if (!session) throw redirect(307, '/login')
+	
 	const dbPlayers = await supabase.from('players').select('name, elo, id');
 	if (dbPlayers.error) throw error(404, 'No players found');
 	const url =

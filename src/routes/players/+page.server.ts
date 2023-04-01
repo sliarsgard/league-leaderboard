@@ -3,7 +3,6 @@ import type { PageServerLoad } from './$types';
 
 export const load = (async ({locals}) => {
 	const { supabase, getSession } = locals;
-	
 	const session = await getSession();
 	if (!session) throw redirect(307, '/login')
 

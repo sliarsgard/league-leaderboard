@@ -20,7 +20,7 @@ export const load = (async ({ params, locals }) => {
 		.returns<PlayerPageGameData[]>()
 		.limit(1, { foreignTable: 'games' })
 		.order('created_at', { ascending: false });
-	console.log('playerGameData', playerGameData.data);
+		
 	const url =
 		'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-summary.json';
 	const championData = await fetch(url, { method: 'GET' });

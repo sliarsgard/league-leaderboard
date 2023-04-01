@@ -36,3 +36,6 @@ export type Player = Database['public']['Tables']['players']['Row'];
 export type PlayerGameData = Database['public']['Tables']['player_game_data']['Row'];
 export type PlayerGameDataInsert = Database['public']['Tables']['player_game_data']['Insert'];
 
+export interface PlayerWithIcon extends Player {
+	profileIconId: number;
+}
