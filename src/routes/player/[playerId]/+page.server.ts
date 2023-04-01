@@ -1,4 +1,3 @@
-import supabase from '$lib/supabase';
 import type { Champion, Game, PlayerGameData } from '$lib/types';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
@@ -8,7 +7,8 @@ export interface PlayerPageGameData extends PlayerGameData {
 	games: Game;
 }
 
-export const load = (async ({ params }) => {
+export const load = (async ({ params, locals }) => {
+	const { supabase } = locals;
 	const playerId = parseInt(params.playerId);
 	if (isNaN(playerId)) throw error(404, 'Player not found');
 	const player = await supabase.from('players').select('*').eq('id', playerId).single();

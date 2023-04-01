@@ -25,7 +25,7 @@
 
 	const handleSelect = async (item: Player) => {
 		if (item.id === -1) {
-			const res = await fetch(`/api/addplayer?name=${searchStr}`, {
+			await fetch(`/api/addplayer?name=${searchStr}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',

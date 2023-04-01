@@ -1,10 +1,9 @@
 <script lang="ts">
-	import supabase from '$lib/supabase';
 	import type { Player } from '$lib/types';
 	import { getTier, getTierUrl } from '$lib/util';
 	import type { PageData } from './$types';
 	export let data: PageData;
-	let { players } = data;
+	let { players, supabase } = data;
 	supabase
 		.channel('any')
 		.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'players' }, (payload) => {

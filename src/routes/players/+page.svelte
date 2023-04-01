@@ -1,10 +1,11 @@
 <script lang="ts">
-	import supabase from '$lib/supabase';
+	import { redirect } from '@sveltejs/kit';
 	import type { PageData } from './$types';
 	import ConfirmModal from './ConfirmModal.svelte';
 
 	export let data: PageData;
-	let { players } = data;
+	let { players, supabase, session } = data
+	if (!session?.user) redirect(300, '/');
 
 	supabase
 		.channel('any')
@@ -76,6 +77,7 @@
 					bind:value={name}
 					class="p-2 rounded-md bg-slate-400 outline-none text-slate-800 font-bold"
 					id="name"
+					autocomplete="nickname"
 					type="text"
 				/>
 			</div>

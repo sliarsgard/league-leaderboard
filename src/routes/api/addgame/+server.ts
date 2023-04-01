@@ -1,14 +1,18 @@
 import { error } from '@sveltejs/kit';
-import type { GameDataInput, PlayerGameDataInsert } from '$lib/types';
+import type { GameDataInput } from '$lib/types';
 import { calculateEloChange } from './elo';
 import type { RequestHandler } from './$types';
-import supabase from '$lib/supabase';
 
-export const POST: RequestHandler = (async ({request}) => {
+export const POST: RequestHandler = (async ({ request, locals }) => {
+	const { supabase, getSession } = locals;
+	const session = await getSession();
+	if (!session) throw error(401, 'Unauthorized');
 	try {
 		const { players, bans }: GameDataInput = await request.json();
 		const playerIds = players.map((p) => p.id);
-		const dbPlayers = await fetchPlayers(playerIds);
+		const dbPlayersRes = await supabase.from('players').select('*').in('id', playerIds);
+		if (dbPlayersRes.error) throw error(500, 'An error occurred while fetching players.');
+		const dbPlayers = dbPlayersRes.data;
 		if (dbPlayers.length !== playerIds.length)
 			return new Response('Some players were not found in the database.', { status: 400 });
 
@@ -16,9 +20,18 @@ export const POST: RequestHandler = (async ({request}) => {
 			dbPlayers.filter((player) => players.find((p) => p.id === player.id)?.won),
 			dbPlayers.filter((player) => !players.find((p) => p.id === player.id)?.won)
 		);
-		const gameId = await createGame(bans, players.find((p) => p.won)?.team === 'blue');
 
-		const updatePlayers = dbPlayers.map((dbPlayer) => {
+		const gameData = {
+			bans_blue: bans.blue,
+			bans_red: bans.red,
+			blue_team_win: players.find((p) => p.won)?.team === 'blue'
+		};
+
+		const gameRes = await supabase.from('games').insert(gameData).select('*').single();
+		if (gameRes.error) throw error(500, 'An error occurred while creating game.');
+		const gameId = gameRes.data.id;
+
+		const updatePlayers = dbPlayers.map(async (dbPlayer) => {
 			const player = players.find((p) => p.id === dbPlayer.id);
 			if (!player) return null;
 
@@ -28,7 +41,8 @@ export const POST: RequestHandler = (async ({request}) => {
 
 			const w = won ? dbPlayer.w + 1 : dbPlayer.w;
 			const l = won ? dbPlayer.l : dbPlayer.l + 1;
-			return insertPlayerGameData({
+
+			const playerGameData = {
 				player_id: dbPlayer.id,
 				game_id: gameId,
 				champion: player.champion,
@@ -37,50 +51,22 @@ export const POST: RequestHandler = (async ({request}) => {
 				kills: player.k,
 				deaths: player.d,
 				assists: player.a,
-				elo_change: eloChange,
-			}, newElo, w, l);
+				elo_change: eloChange
+			};
+			const { error: insertError } = await supabase.from('player_game_data').insert(playerGameData);
+			if (insertError) throw error(500, 'An error occurred while inserting player game data.');
+			const { error: updateError } = await supabase
+				.from('players')
+				.update({ elo: newElo, w, l })
+				.eq('id', playerGameData.player_id);
+
+			if (updateError) throw error(500, 'An error occurred while updating player data.');
 		});
 
 		await Promise.all(updatePlayers);
 
-		return new Response('Game results processed successfully.')
+		return new Response('Game results processed successfully.');
 	} catch (err) {
 		throw error(500, 'Error processing game results.');
 	}
 }) satisfies RequestHandler;
-
-const fetchPlayers = async (playerIds: number[]) => {
-	const response = await supabase.from('players').select('*').in('id', playerIds);
-	if (response.error) throw error(500, 'An error occurred while fetching players.');
-	return response.data;
-};
-
-const createGame = async (
-	bans: Record<'blue' | 'red', number[]>,
-	blueTeamWin: boolean
-): Promise<number> => {
-	const response = await supabase
-		.from('games')
-		.insert({
-			bans_blue: bans.blue,
-			bans_red: bans.red,
-			blue_team_win: blueTeamWin
-		})
-		.select('*')
-		.single();
-
-	if (response.error) throw error(500, 'An error occurred while creating game.');
-	return response.data.id;
-};
-
-async function insertPlayerGameData(playerGameData: PlayerGameDataInsert, elo: number, w: number, l: number): Promise<void> {
-	const { error: insertError } = await supabase.from('player_game_data').insert(playerGameData);
-	if (insertError) throw error(500, 'An error occurred while inserting player game data.');
-
-	const { error: updateError } = await supabase
-		.from('players')
-		.update({elo,w,l})
-		.eq('id', playerGameData.player_id);
-
-	if (updateError) throw error(500, 'An error occurred while updating player data.');
-}

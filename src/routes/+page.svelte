@@ -1,12 +1,11 @@
 <script lang="ts">
 	import type { Player } from '$lib/types';
 	import type { PageData } from './$types';
-	import supabase from '$lib/supabase';
 	import { getTier, getTierUrl } from '$lib/util';
 
 	export let data: PageData;
 
-	let { players } = data;
+	let { players, supabase } = data;
 
 	supabase
 		.channel('any')

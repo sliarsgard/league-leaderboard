@@ -1,9 +1,9 @@
 import {error} from '@sveltejs/kit'
-import supabase from '$lib/supabase';
 import type { RequestHandler } from './$types';
 import type { Player } from '$lib/types';
 
-export const POST = (async ({ request }) => {
+export const POST = (async ({ request, locals }) => {
+    const { supabase } = locals;
     const {playerIds}: {playerIds: number[]} = await request.json();
     
     const response = await supabase.from('players').select('*').in('id', playerIds);

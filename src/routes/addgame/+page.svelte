@@ -4,13 +4,12 @@
 	import { setContext } from 'svelte';
 	import type { PlayerGameDataInput, Role } from '$lib/types';
 	import SelectChampion from './SelectChampion.svelte';
-	import supabase from '$lib/supabase';
 
 	export let data: PageData;
 
 	let winningTeam = 0;
 
-	let { players, champions } = data;
+	let { players, champions, supabase, session } = data;
 
 	let bans = {
 		blue: [0, 0, 0, 0, 0],
@@ -23,6 +22,24 @@
 		return { id: 0, champion: 0, team, role, k: 0, d: 0, a: 0 };
 	};
 	const ROLES: Role[] = ['top', 'jng', 'mid', 'bot', 'sup'];
+
+	const loadData = () => {
+		supabase
+			.channel('any')
+			.on(
+				'postgres_changes',
+				{ event: 'INSERT', schema: 'public', table: 'players' },
+				(payload) => {
+					const newPlayer: Player = {
+						name: payload.new.name,
+						id: payload.new.id,
+						elo: payload.new.elo
+					};
+					players = [...players, newPlayer];
+				}
+			)
+			.subscribe();
+	};
 
 	const generatePlayerDataArray = () => {
 		const arr = [];
@@ -39,18 +56,6 @@
 		elo: number;
 		id: number;
 	}
-
-	supabase
-		.channel('any')
-		.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'players' }, (payload) => {
-			const newPlayer: Player = {
-				name: payload.new.name,
-				id: payload.new.id,
-				elo: payload.new.elo
-			};
-			players = [...players, newPlayer];
-		})
-		.subscribe();
 
 	let playerData = generatePlayerDataArray();
 
@@ -89,6 +94,8 @@
 	};
 
 	setContext('filterPlayers', filterPlayers);
+
+	$: if (session) loadData();
 </script>
 
 <div class="flex flex-col items-center px-8">

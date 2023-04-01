@@ -26,3 +26,13 @@ export const getTierUrl = (elo: number) => {
     const tier = getTier(elo).toLowerCase()
     return `${url}${tier}.png`
 }
+
+export const getTierPoints = (elo: number) => {
+	if (elo >= 1300 ) {
+		return elo - 1500;
+	} else if (elo >= 700) {
+		return elo % 100;
+	} else {
+		return elo - 700;
+	}
+};
