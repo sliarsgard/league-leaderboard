@@ -38,7 +38,7 @@
 					class:third={i === 2}
 				>
 					<span class="text-xl font-bold text-slate-100 w-1/2 text-left flex gap-2">
-						<img src={getIconUrl(player.profileIconId)} alt={player.profileIconId} class="w-8 h-8" />
+						<img src={getIconUrl(player.profileIconId)} alt={player.profileIconId} class="w-8 h-8 rounded-md" />
 						<span>{player.name}</span>
 					</span>
 					<span class="text-xl font-bold items-center text-slate-100 flex gap-2 w-1/4">
