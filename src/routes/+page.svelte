@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Player, PlayerWithIcon } from '$lib/types';
+	import type { PlayerWithIcon } from '$lib/types';
 	import type { PageData } from './$types';
 	import { getIconUrl, getTier, getTierPoints, getTierUrl } from '$lib/util';
 
@@ -22,7 +22,7 @@
 
 <div class="flex flex-col items-center pb-16">
 	<p
-		class="text-emerald-400 px-4 py-4 border-b-4 border-emerald-500 rounded-md text-5xl font-bold uppercase"
+		class="text-slate-200 px-4 py-4 border-b-4 border-slate-500 rounded-md text-5xl font-bold uppercase"
 	>
 		Avetint's Leaderboard
 	</p>
