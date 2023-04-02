@@ -71,7 +71,9 @@
 							alt={getTier(player.elo)}
 							class="w-10 h-10 rounded-full"
 						/>
-						<div class="h-2 w-full bg-slate-300" />
+						<div class={`h-2 w-full line rounded-md ${getTier(
+							player.elo
+						).toLowerCase()} opacity-50`} />
 					</div>
 				{/if}
 			</div>
@@ -106,5 +108,32 @@
 	}
 	div.iron {
 		@apply border-stone-500 bg-opacity-10 bg-stone-400 hover:bg-opacity-20 active:bg-opacity-30;
+	}
+	div.challenger.line {
+		@apply bg-amber-300;
+	}
+	div.grandmaster.line {
+		@apply bg-red-300;
+	}
+	div.master.line {
+		@apply bg-fuchsia-300;
+	}
+	div.diamond.line {
+		@apply bg-cyan-400;
+	}
+	div.platinum.line {
+		@apply bg-emerald-300;
+	}
+	div.gold.line {
+		@apply bg-yellow-400;
+	}
+	div.silver.line {
+		@apply bg-neutral-200;
+	}
+	div.bronze.line {
+		@apply bg-amber-600;
+	}
+	div.iron.line {
+		@apply bg-stone-400;
 	}
 </style>
