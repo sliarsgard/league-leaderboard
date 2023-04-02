@@ -1,13 +1,12 @@
 <script lang="ts">
 	import type { Player, PlayerWithIcon } from '$lib/types';
 	import type { PageData } from './$types';
-	import { getTier, getTierPoints, getTierUrl } from '$lib/util';
+	import { getIconUrl, getTier, getTierPoints, getTierUrl } from '$lib/util';
 
 	export let data: PageData;
 
 	let { players, supabase } = data;
 	console.log(players)
-	const getIconUrl = (iconId: string) => `https://raw.communitydragon.org/latest/game/assets/ux/summonericons/profileicon${iconId}.png`;
 	supabase
 		.channel('any')
 		.on<PlayerWithIcon>('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'players' }, (payload) => {
@@ -32,20 +31,23 @@
 				class:second={i === 1}
 				class:third={i === 2}>{i + 1}</span>
 				<div
-					class="p-4 w-full rounded-xl border-4 border-emerald-400 bg-opacity-10 bg-emerald-400 text-center flex hover:bg-opacity-20 active:bg-opacity-30"
-					class:first={i === 0}
-					class:second={i === 1}
-					class:third={i === 2}
+				class="w-full rounded-xl border-4 border-emerald-400 flex bg-opacity-10 bg-emerald-400 text-center hover:bg-opacity-20 active:bg-opacity-30"
+				class:first={i === 0}
+				class:second={i === 1}
+				class:third={i === 2}
 				>
-					<span class="text-xl font-bold text-slate-100 w-1/2 text-left flex gap-2">
-						<img src={getIconUrl(player.profileIconId)} alt={player.profileIconId} class="w-8 h-8 rounded-md" />
+				<img src={getIconUrl(player.profileIconId)} alt={player.profileIconId} class="w-16 h-16 rounded-l-md" />
+				<div class="p-3 flex w-full items-center">
+
+					<span class="text-2xl font-bold text-slate-100 w-1/2 text-left flex gap-2">
 						<span>{player.name}</span>
 					</span>
-					<span class="text-xl font-bold items-center text-slate-100 flex gap-2 w-1/4">
-						<img src={getTierUrl(player.elo)} alt={getTier(player.elo)} class="w-8 h-8" />
+					<span class="text-2xl font-bold items-center text-slate-100 flex gap-2 w-1/4">
+						<img src={getTierUrl(player.elo)} alt={getTier(player.elo)} class="w-10 h-10" />
 						<span>{getTierPoints(player.elo)}p</span>
 					</span>
-					<p class="text-xl font-bold text-slate-100 w-1/4">{`${player.w} W - ${player.l} L`}</p>
+					<p class="text-2xl font-bold text-slate-100 w-1/4">{`${player.w} W - ${player.l} L`}</p>
+				</div>
 				</div>
 			</a>
 		{/each}

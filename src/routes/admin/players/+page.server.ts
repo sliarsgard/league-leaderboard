@@ -10,8 +10,8 @@ export const load = (async ({locals}) => {
 	if (!players.data) throw error(500, 'Supabase error')
 	return {
 		players: players.data.sort((a,b) => {
-            if (a.name < b.name) return -1;
-            if (a.name > b.name) return 1;
+            if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+            if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
             return 0;
         }),
 	};

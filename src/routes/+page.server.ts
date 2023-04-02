@@ -1,8 +1,7 @@
 import { error } from '@sveltejs/kit';
 import {RIOT_API_KEY} from '$env/static/private'
 import type { PageServerLoad } from './$types'
-
-const getSummonerUrl = (name: string) => `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${name}`
+import { getSummonerUrl } from '$lib/util';
 
 export const load = (async ({locals}) => {
     const {supabase} = locals

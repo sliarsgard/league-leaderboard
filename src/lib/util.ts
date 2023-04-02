@@ -21,14 +21,14 @@ export const getTier = (elo: number) => {
 };
 
 export const getTierUrl = (elo: number) => {
-    // const url = 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-shared-components/global/default/'
-	const url = `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests/`
-    const tier = getTier(elo).toLowerCase()
-    return `${url}${tier}.png`
-}
+	// const url = 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-shared-components/global/default/'
+	const url = `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests/`;
+	const tier = getTier(elo).toLowerCase();
+	return `${url}${tier}.png`;
+};
 
 export const getTierPoints = (elo: number) => {
-	if (elo >= 1300 ) {
+	if (elo >= 1300) {
 		return elo - 1500;
 	} else if (elo >= 700) {
 		return elo % 100;
@@ -36,3 +36,12 @@ export const getTierPoints = (elo: number) => {
 		return elo - 700;
 	}
 };
+
+export const getChampionImageUrl = (championId: number) =>
+	`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${championId}.png`;
+
+export const getIconUrl = (iconId: number) =>
+	`https://raw.communitydragon.org/latest/game/assets/ux/summonericons/profileicon${iconId}.png`;
+
+export const getSummonerUrl = (name: string) =>
+	`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${name}`;

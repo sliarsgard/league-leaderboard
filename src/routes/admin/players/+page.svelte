@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { redirect } from '@sveltejs/kit';
-	import type { PageData } from './$types';
 	import ConfirmModal from './ConfirmModal.svelte';
+	import type { PageData } from './$types'
 
 	export let data: PageData;
 	let { players, supabase, session } = data
@@ -56,12 +56,12 @@
 		{#each players as player}
 			<div class="flex gap-2">
 				<button
-					class="p-2 pb-1 flex bg-red-500 rounded-md font-bold text-slate-800 uppercase"
+					class="p-2 pb-1 flex bg-red-500 rounded-md font-bold text-slate-800 uppercase hover:bg-red-400 transition-colors ease-in-out duration-200"
 					on:click={() => promptDeletePlayer(player.id)}
 					><i class="material-symbols-outlined">remove</i></button
 				>
 				<div
-					class="flex justify-between gap-8 py-2 px-4 bg-slate-500 font-semibold rounded-md w-full"
+					class="flex justify-between gap-8 py-2 px-4 bg-slate-500 font-bold rounded-md w-full text-slate-800"
 				>
 					<span>{player.name}</span>
 				</div>
@@ -71,7 +71,7 @@
 	<form on:submit|preventDefault={addPlayer}>
 		<div class="flex flex-col gap-2">
 			<div class="flex flex-col">
-				<label class="text-slate-200 font-mono font-bold uppercase" for="name">Username</label>
+				<label class="text-slate-300 font-mono font-bold uppercase" for="name">Username</label>
 				<input
 					disabled={loading}
 					bind:value={name}
@@ -84,7 +84,7 @@
 			<button
 				disabled={loading}
 				type="submit"
-				class="p-2 bg-lime-500 rounded-md font-bold text-slate-800 uppercase">Add player</button
+				class="p-2 bg-lime-500 bg-opacity-500 rounded-md font-bold text-slate-800 uppercase hover:bg-lime-400 transition-colors ease-in-out duration-200">Add player</button
 			>
 		</div>
 	</form>

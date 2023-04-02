@@ -24,6 +24,6 @@
 		>Admin</button
 	>
 {/if}
-<div class="flex justify-center mt-16">
+<div class="flex justify-center mt-4">
 	<slot />
 </div>

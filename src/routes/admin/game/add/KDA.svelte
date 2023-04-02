@@ -30,17 +30,17 @@
 		<input
 			bind:value={kInput}
 			type="text"
-			class="w-1/3 text-center p-1 outline-none rounded-md bg-slate-200"
+			class="w-1/3 text-center p-1 outline-none rounded-md bg-slate-400"
 		/>
 		<input
 			bind:value={dInput}
 			type="text"
-			class="w-1/3 text-center p-1 outline-none rounded-md bg-slate-200"
+			class="w-1/3 text-center p-1 outline-none rounded-md bg-slate-400"
 		/>
 		<input
 			bind:value={aInput}
 			type="text"
-			class="w-1/3 text-center p-1 outline-none rounded-md bg-slate-200"
+			class="w-1/3 text-center p-1 outline-none rounded-md bg-slate-400"
 		/>
 	</div>
 </div>

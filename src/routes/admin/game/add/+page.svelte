@@ -2,8 +2,9 @@
 	import type { PageData } from './$types';
 	import PlayerInput from './PlayerInput.svelte';
 	import { setContext } from 'svelte';
-	import type { PlayerGameDataInput, Role } from '$lib/types';
+	import type { Player, PlayerGameDataInput, PlayerWithIcon, Role } from '$lib/types';
 	import SelectChampion from './SelectChampion.svelte';
+	import BanChampionSelect from './BanChampionSelect.svelte';
 
 	export let data: PageData;
 
@@ -12,28 +13,27 @@
 	let { players, champions, supabase, session } = data;
 
 	let bans = {
-		blue: [0, 0, 0, 0, 0],
-		red: [0, 0, 0, 0, 0]
+		blue: [-1, -1, -1, -1, -1],
+		red: [-1, -1, -1, -1, -1]
 	};
 
 	setContext('champions', champions);
 
 	const getNewPlayerData = (role: Role, team: 'blue' | 'red'): PlayerGameDataInput => {
-		return { id: 0, champion: 0, team, role, k: 0, d: 0, a: 0 };
+		return { id: 0, champion: -1, team, role, k: 0, d: 0, a: 0 };
 	};
 	const ROLES: Role[] = ['top', 'jng', 'mid', 'bot', 'sup'];
 
 	const loadData = () => {
 		supabase
 			.channel('any')
-			.on(
+			.on<Player>(
 				'postgres_changes',
 				{ event: 'INSERT', schema: 'public', table: 'players' },
 				(payload) => {
-					const newPlayer: Player = {
-						name: payload.new.name,
-						id: payload.new.id,
-						elo: payload.new.elo
+					const newPlayer: PlayerWithIcon = {
+						...payload.new,
+						profileIconId: 0
 					};
 					players = [...players, newPlayer];
 				}
@@ -50,12 +50,6 @@
 		}
 		return arr;
 	};
-
-	interface Player {
-		name: string;
-		elo: number;
-		id: number;
-	}
 
 	let playerData = generatePlayerDataArray();
 
@@ -103,28 +97,30 @@
 
 	<div class="grid grid-cols-2 gap-6">
 		{#each [0, 5] as teamStartIndex (teamStartIndex)}
-			<div class="flex flex-col items-center gap-4">
-				<div>
+			<div class="flex flex-col gap-4 p-4 bg-slate-500 rounded-md">
+				<p class="text-xl font-bold uppercase text-center">
+					{teamStartIndex === 0 ? 'Blue Team' : 'Red Team'}
+				</p>
+				<div class="flex justify-between p-4 rounded-md bg-slate-500 w-[25rem]">
 					{#each Array(5)
 						.fill(null)
 						.map((_, i) => i) as banIndex}
-						<SelectChampion bind:selected={bans[teamStartIndex === 0 ? 'blue' : 'red'][banIndex]} />
+						<BanChampionSelect
+							bind:selectedChampion={bans[teamStartIndex === 0 ? 'blue' : 'red'][banIndex]}
+						/>
 					{/each}
 				</div>
-				<p class="text-xl font-bold uppercase mb-4">
-					{teamStartIndex === 0 ? 'Blue Team' : 'Red Team'}
-				</p>
-				{#each Array(5)
-					.fill(null)
-					.map((_, i) => i + teamStartIndex) as playerIndex}
-					<PlayerInput
-						{playersToSelect}
-						playerData={playerData[playerIndex]}
-						class={`p-4 w-3/4 mx-auto rounded-xl border-2 text-center flex flex-col gap-2 ${
-							teamStartIndex === 0 ? 'blue' : 'red'
-						}`}
-					/>
-				{/each}
+				<div class="flex flex-col items-center gap-4 w-[25rem]">
+					{#each Array(5)
+						.fill(null)
+						.map((_, i) => i + teamStartIndex) as playerIndex}
+						<PlayerInput
+							{playersToSelect}
+							playerData={playerData[playerIndex]}
+							blueTeam={teamStartIndex === 0}
+						/>
+					{/each}
+				</div>
 			</div>
 		{/each}
 	</div>
