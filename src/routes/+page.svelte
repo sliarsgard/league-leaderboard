@@ -6,7 +6,6 @@
 	export let data: PageData;
 
 	let { players, supabase } = data;
-	console.log(players);
 	supabase
 		.channel('any')
 		.on<PlayerWithIcon>(
