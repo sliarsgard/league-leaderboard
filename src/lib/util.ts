@@ -28,6 +28,7 @@ export const getTierUrl = (elo: number) => {
 };
 
 export const getTierPoints = (elo: number) => {
+	elo = Math.floor(elo);
 	if (elo >= 1300) {
 		return elo - 1500;
 	} else if (elo >= 700) {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Player } from '$lib/types';
-	import { getTier, getTierUrl } from '$lib/util';
+	import { getTier, getTierPoints, getTierUrl } from '$lib/util';
 	import type { PageData } from './$types';
 	export let data: PageData;
 	let { players, supabase } = data;
@@ -75,10 +75,16 @@
 	</div>
 	<div class="flex flex-col gap-2 w-60 text-slate-800">
 		<div
-			class="flex justify-between gap-8 py-2 px-4 bg-slate-500 border-b-4 border-sky-500 uppercase text-sky-500 rounded-md font-bold"
+			class="flex justify-between gap-8 py-2 px-4 bg-slate-500 border-b-4 border-sky-500 text-sky-500 rounded-md font-bold"
 		>
-			<span>Team 1</span>
-			<span>{`${team1.reduce((acc, curr) => acc + curr.elo, 0) / 5} elo`}</span>
+			<span class="uppercase">Team 1</span>
+			{#if team1.length > 0}
+				{@const elo = team1.reduce((acc, curr) => acc + curr.elo, 0) / 5}
+				<span class="font-bold items-center text-slate-800 flex justify-center gap-2">
+					<img src={getTierUrl(elo)} alt={getTier(elo)} class="w-6 h-6 rounded-full" />
+					<span>{getTierPoints(elo)}p</span>
+				</span>
+			{/if}
 		</div>
 		{#each team1 as player}
 			<div class="flex gap-2 py-2 px-4 bg-slate-500 rounded-md font-bold">
@@ -89,10 +95,16 @@
 	</div>
 	<div class="flex flex-col gap-2 w-60 text-slate-800">
 		<div
-			class="flex justify-between gap-4 py-2 px-4 bg-slate-500 border-b-4 border-red-400 uppercase text-red-400 rounded-md font-bold"
+			class="flex justify-between gap-4 py-2 px-4 bg-slate-500 border-b-4 border-red-400 text-red-400 rounded-md font-bold"
 		>
-			<span>Team 2</span>
-			<span>{`${team2.reduce((acc, curr) => acc + curr.elo, 0) / 5} elo`}</span>
+			<span class="uppercase">Team 2</span>
+			{#if team2.length > 0}
+				{@const elo = team2.reduce((acc, curr) => acc + curr.elo, 0) / 5}
+				<span class="font-bold items-center text-slate-800 flex justify-center gap-2">
+					<img src={getTierUrl(elo)} alt={getTier(elo)} class="w-6 h-6 rounded-full" />
+					<span>{getTierPoints(elo)}p</span>
+				</span>
+			{/if}
 		</div>
 		{#each team2 as player}
 			<div class="flex gap-2 py-2 px-4 bg-slate-500 rounded-md font-bold">
