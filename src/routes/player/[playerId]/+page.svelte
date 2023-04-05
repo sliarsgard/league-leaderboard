@@ -34,20 +34,20 @@
 			</div>
 			<div class="stats-row">
 				<span>Games</span>
-				<span>{player.wins + player.losses}</span>
+				<span>{player.w + player.l}</span>
 			</div>
 			<div class="stats-row">
 				<span>Wins</span>
-				<span>{player.wins}</span>
+				<span>{player.w}</span>
 			</div>
 			<div class="stats-row">
 				<span>Losses</span>
-				<span>{player.losses}</span>
+				<span>{player.l}</span>
 			</div>
 			<div class="stats-row">
 				<span>Winrate</span>
 				<span
-					>{(player.wins + player.losses === 0 ? 0 : (player.wins / (player.wins + player.losses)) * 100).toFixed(1) +
+					>{(player.w + player.l === 0 ? 0 : (player.w / (player.w + player.l)) * 100).toFixed(1) +
 						'%'}</span
 				>
 			</div>

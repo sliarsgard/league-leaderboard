@@ -5,10 +5,9 @@ import { getSummonerUrl } from '$lib/util';
 
 export const load = (async ({locals}) => {
     const {supabase} = locals
-    const playerDataRes = await supabase.from('players').select('*').order('elo', {ascending: false})
-    if (playerDataRes.error || playerDataRes.data === null) throw error(500, playerDataRes.error.message)
-    const playerData = playerDataRes.data.filter(player => player.wins + player.losses > 0)
-    const getPlayerImages = playerData.map(async (player) => {
+    const playerData = await supabase.from('players').select()
+    if (playerData.error || playerData.data === null) throw error(500, playerData.error.message)
+    const getPlayerImages = playerData.data.map(async (player) => {
         const summonerData = await fetch(getSummonerUrl(player.name), {
             headers: { 'X-Riot-Token': RIOT_API_KEY }
         })

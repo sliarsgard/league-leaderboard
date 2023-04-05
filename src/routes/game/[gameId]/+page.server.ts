@@ -1,7 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import type { PlayerGameData } from '$lib/types/database';
-import type { Champion } from '$lib/types/external';
+import type { Champion, PlayerGameData } from '$lib/types';
 
 interface Player extends PlayerGameData {
     players: {

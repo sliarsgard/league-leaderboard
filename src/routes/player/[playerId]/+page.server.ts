@@ -1,14 +1,10 @@
+import type { Champion, Game, PlayerGameData } from '$lib/types';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import type { ChartData, ChartOptions, Point } from 'chart.js';
-import type { Game, PlayerGameData } from '$lib/types/database';
-import type { Champion } from '$lib/types/external';
 
 export interface PlayerPageGameData extends PlayerGameData {
 	games: Game;
-}
-interface GameWithPlayerGameData extends Game {
-	player_game_data: PlayerPageGameData[];
 }
 
 export const load = (async ({ params, locals }) => {
@@ -24,7 +20,7 @@ export const load = (async ({ params, locals }) => {
 		.returns<PlayerPageGameData[]>()
 		.limit(1, { foreignTable: 'games' })
 		.order('created_at', { ascending: false });
-
+		
 	const url =
 		'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-summary.json';
 	const championData = await fetch(url, { method: 'GET' });
@@ -36,10 +32,7 @@ export const load = (async ({ params, locals }) => {
 		//@ts-expect-error - this is a bug in the supabase typings
 		playerGameData.data = [playerGameData.data as PlayerPageGameData];
 
-	const eloData = playerGameData.data
-		.map((game) => game.elo_change)
-		.slice()
-		.reverse();
+	const eloData = playerGameData.data.map((game) => game.elo_change).slice().reverse();
 	const eloOverTime = [
 		1000,
 		...eloData.reduce((acc: number[], cur) => {
@@ -53,11 +46,7 @@ export const load = (async ({ params, locals }) => {
 	const players = await supabase.from('players').select('*');
 	let playedWith: { player: number; wins: number; losses: number }[] = [];
 	const getGames = playerGameData.data.map((game) =>
-		supabase
-			.from('games')
-			.select('*, player_game_data(*)')
-			.eq('id', game.game_id)
-			.returns<GameWithPlayerGameData>()
+		supabase.from('games').select('*, player_game_data(*)').eq('id', game.game_id).single()
 	);
 	const games = await Promise.all(getGames);
 
@@ -69,16 +58,21 @@ export const load = (async ({ params, locals }) => {
 				const [wins, losses] = games.reduce(
 					(acc, game) => {
 						if (!game.data) return acc;
+						//@ts-expect-error - this is a bug in the supabase typings
 						if (game.data.player_game_data?.every((player) => player.player_id !== playerId))
 							return acc;
+						//@ts-expect-error - this is a bug in the supabase typings
 						const profilePlayer = game.data.player_game_data?.find(
+							//@ts-expect-error - this is a bug in the supabase typings
 							(player) => player.player_id === playerId
 						);
-						if (!profilePlayer) return acc;
+						const blueTeam = profilePlayer?.blue_team;
+						//@ts-expect-error - this is a bug in the supabase typings
 						const playerData = game.data.player_game_data?.find((p) => p.player_id === player.id);
-						const sameTeam = playerData?.team === profilePlayer.team;
+						const sameTeam = playerData?.blue_team === blueTeam;
 						if (!sameTeam) return acc;
-						if (game.data.winning_team === profilePlayer.team) return [acc[0] + 1, acc[1]];
+						if (game.data.blue_team_win && blueTeam) return [acc[0] + 1, acc[1]];
+						if (!game.data.blue_team_win && !blueTeam) return [acc[0] + 1, acc[1]];
 						return [acc[0], acc[1] + 1];
 					},
 					[0, 0]
@@ -103,19 +97,25 @@ export const load = (async ({ params, locals }) => {
 		.sort((a, b) => b.games - a.games);
 
 	games.forEach((game) => {
+		//@ts-expect-error - this is a bug in the supabase typings
 		const blueTeam = game.data?.player_game_data?.find(
+			//@ts-expect-error - this is a bug in the supabase typings
 			(player) => player.player_id === playerId
 		)?.blue_team;
+		//@ts-expect-error - this is a bug in the supabase typings
 		game.data?.player_game_data?.forEach((player) => {
 			if (player.player_id === playerId) return;
 			if (blueTeam === player.blue_team) {
 				if (playedWith.some((p) => p.player === player.player_id))
 					playedWith = playedWith.map((p) => {
 						if (p.player !== player.player_id) return p;
-						if (game.data.winning_team === player.team) return { ...p, wins: p.wins + 1 };
+						if (game.data.blue_team_win && player.blue_team) return { ...p, wins: p.wins + 1 };
+						if (!game.data.blue_team_win && !player.blue_team) return { ...p, wins: p.wins + 1 };
 						return { ...p, losses: p.losses + 1 };
 					});
-				else if (game.data.winning_team === player.team)
+				else if (game.data.blue_team_win && player.blue_team)
+					playedWith.push({ player: player.player_id, wins: 1, losses: 0 });
+				else if (!game.data.blue_team_win && !player.blue_team)
 					playedWith.push({ player: player.player_id, wins: 1, losses: 0 });
 				else playedWith.push({ player: player.player_id, wins: 0, losses: 1 });
 			}

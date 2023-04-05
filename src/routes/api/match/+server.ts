@@ -1,6 +1,6 @@
 import {error} from '@sveltejs/kit'
 import type { RequestHandler } from './$types';
-import type { Player } from '$lib/types/database';
+import type { Player } from '$lib/types';
 
 export const POST = (async ({ request, locals }) => {
     const { supabase } = locals;

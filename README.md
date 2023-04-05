@@ -1,20 +1,38 @@
-## Setup
+# create-svelte
 
-1. Run ```npm install```
-2. Add ```.env``` to the root of the project and fill with the nessecary environment variables
-3. Run ```npx supabase start``` to start the local db
-4. Run ```npm run dev```
+Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
 
-## Branches
+## Creating a project
 
-- ```main``` is automaticly deployed to the netlify production site ```avetint.com``` when a change is pushed to github.
+If you're seeing this, you've probably already done this step. Congrats!
 
-- ```dev``` is automaticly deployed to the netlify test site when a change is pushed to github
+```bash
+# create a new project in the current directory
+npm create svelte@latest
 
-When changes are made, make a pull request to ```dev```. When the PR is merged, test it on ```dev.avetint.com```.
+# create a new project in my-app
+npm create svelte@latest my-app
+```
 
-## Database
-To make changes to the database you can either:
-1. run ```npx supabase db new [insert-name-of-change]```
-which will create an sql file that you can write your changes in. This will automaticly change the ```dev``` and ```test``` db when pushed to netlify.
-2. change the database using the local supabase instance and then run ```npx supabase db diff -f [insert-name-of-change]``` which will create the sql file with the changes you've made.
+## Developing
+
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+
+```bash
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
+
+## Building
+
+To create a production version of your app:
+
+```bash
+npm run build
+```
+
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.

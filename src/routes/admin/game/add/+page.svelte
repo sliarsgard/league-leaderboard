@@ -2,55 +2,44 @@
 	import type { PageData } from './$types';
 	import PlayerInput from './PlayerInput.svelte';
 	import { setContext } from 'svelte';
+	import type { Player, PlayerGameDataInput, PlayerWithIcon, Role } from '$lib/types';
+	import SelectChampion from './SelectChampion.svelte';
 	import BanChampionSelect from './BanChampionSelect.svelte';
-	import type { Role, Team } from '$lib/types/other';
-	import type { GameInsert, Player, PlayerGameDataInsert } from '$lib/types/database';
-	import { browser } from '$app/environment';
 
 	export let data: PageData;
 
-	let { players, champions, supabase } = data;
 	let winningTeam = 0;
 
-	const bans = {
+	let { players, champions, supabase, session } = data;
+
+	let bans = {
 		blue: [-1, -1, -1, -1, -1],
 		red: [-1, -1, -1, -1, -1]
 	};
 
-	const getNewPlayerData = (role: Role, team: Team): PlayerGameDataInsert => {
-		return {
-			champion: -1,
-			team,
-			role,
-			kills: 0,
-			deaths: 0,
-			assists: 0,
-			elo_change: 0,
-			win: false,
-			blue_team: team === 'blue',
-			game_id: 0,
-			player_id: 0
-		};
+	setContext('champions', champions);
+
+	const getNewPlayerData = (role: Role, team: 'blue' | 'red'): PlayerGameDataInput => {
+		return { id: 0, champion: -1, team, role, k: 0, d: 0, a: 0 };
 	};
 	const ROLES: Role[] = ['top', 'jng', 'mid', 'bot', 'sup'];
 
-	browser && supabase
-		.channel('any')
-		.on<Player>(
-			'postgres_changes',
-			{ event: 'INSERT', schema: 'public', table: 'players' },
-			async (payload) => {
-				console.log(payload.new);
-				const playerIcon = await fetch(`/api/player-icon/${payload.new.name}`, {
-					method: 'GET'
-				});
-				players = [
-					...players,
-					{ ...payload.new, profileIconId: parseInt(await playerIcon.json()) }
-				];
-			}
-		)
-		.subscribe();
+	const loadData = () => {
+		supabase
+			.channel('any')
+			.on<Player>(
+				'postgres_changes',
+				{ event: 'INSERT', schema: 'public', table: 'players' },
+				(payload) => {
+					const newPlayer: PlayerWithIcon = {
+						...payload.new,
+						profileIconId: 0
+					};
+					players = [...players, newPlayer];
+				}
+			)
+			.subscribe();
+	};
 
 	const generatePlayerDataArray = () => {
 		const arr = [];
@@ -65,37 +54,32 @@
 	let playerData = generatePlayerDataArray();
 
 	const handleAddGame = async () => {
-		const players: PlayerGameDataInsert[] = playerData.map((player, i) => {
+		const players = playerData.map((player, i) => {
 			return {
 				...player,
-				win: (i < 5 && winningTeam === 1) || (i >= 5 && winningTeam === 2)
+				won: (i < 5 && winningTeam === 1) || (i >= 5 && winningTeam === 2)
 			};
 		});
 
-		const game: GameInsert = {
-			winning_team: winningTeam === 1 ? 'blue' : 'red',
-			bans_blue: bans.blue,
-			bans_red: bans.red
-		};
 		await fetch('/api/addgame', {
 			method: 'POST',
 			body: JSON.stringify({
 				players,
-				game
+				bans
 			})
 		});
 	};
 
-	$: unselectedPlayers = players
-		.filter((player) => !playerData.some((p) => p.player_id === player.id))
+	$: playersToSelect = players
+		.filter((player) => !playerData.some((p) => p.id === player.id))
 		.sort((a, b) => {
 			if (b.name.toLowerCase() > a.name.toLowerCase()) return -1;
 			if (b.name.toLowerCase() < a.name.toLowerCase()) return 1;
 			return 0;
 		});
 	const filterPlayers = () => {
-		unselectedPlayers = players
-			.filter((player) => !playerData.some((p) => p.player_id === player.id))
+		playersToSelect = players
+			.filter((player) => !playerData.some((p) => p.id === player.id))
 			.sort((a, b) => {
 				if (b.name.toLowerCase() > a.name.toLowerCase()) return -1;
 				if (b.name.toLowerCase() < a.name.toLowerCase()) return 1;
@@ -104,7 +88,8 @@
 	};
 
 	setContext('filterPlayers', filterPlayers);
-	setContext('champions', champions);
+
+	$: if (session) loadData();
 </script>
 
 <div class="flex flex-col items-center px-8">
@@ -130,7 +115,7 @@
 						.fill(null)
 						.map((_, i) => i + teamStartIndex) as playerIndex}
 						<PlayerInput
-							playersToSelect={unselectedPlayers}
+							{playersToSelect}
 							playerData={playerData[playerIndex]}
 							blueTeam={teamStartIndex === 0}
 						/>

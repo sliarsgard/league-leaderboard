@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PlayerGameData } from '$lib/types/database';
+	import type { PlayerGameData } from '$lib/types';
 	import { getChampionImageUrl, getTier } from '$lib/util';
 	import type { PageData } from './$types';
 	export let data: PageData;
@@ -7,6 +7,9 @@
 
 	const getPlayerName = (id: number) => players.find((p) => p.id === id)?.name || 'Anonymous';
 
+	const getPlayerStatusClass = (blueTeamWin: boolean, playerBlueTeam: boolean) => {
+		return blueTeamWin === playerBlueTeam ? 'bg-lime-500' : 'bg-rose-500';
+	};
 	const roleOrder = ['top', 'jng', 'mid', 'bot', 'sup'];
 	const sortPlayersByRole = (a: PlayerGameData, b: PlayerGameData) =>
 		roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role);
@@ -25,13 +28,16 @@
 					<span class="text-sm text-gray-600">{game.created_at}</span>
 				</div>
 				<div class="flex gap-4">
-					{#each ['blue', 'red'] as team}
+					{#each [true, false] as isBlueTeam}
 						<div class="flex flex-col space-y-2">
 							{#each game.player_game_data
 								.sort(sortPlayersByRole)
-								.filter((player) => player.team === team) as player}
+								.filter((player) => player.blue_team === isBlueTeam) as player}
 								<div
-									class={`flex rounded-md w-60 items-center pr-2 overflow-hidden ${player.win ? 'bg-lime-500' : 'bg-rose-500'}`}
+									class={`flex rounded-md w-60 items-center pr-2 overflow-hidden ${getPlayerStatusClass(
+										game.blue_team_win,
+										player.blue_team
+									)}`}
 								>
 									<img
 										src={getChampionImageUrl(player.champion)}

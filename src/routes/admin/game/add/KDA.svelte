@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Label from '$lib/components/Label.svelte';
 
-	export let kills: number;
-	export let deaths: number;
-	export let assists: number;
+	export let k: number;
+	export let d: number;
+	export let a: number;
 
 	let kInput = '';
 	let dInput = '';
@@ -17,9 +17,9 @@
 		return parseInt(newVal);
 	};
 
-	$: kills = handleInput(kInput, (value: string) => (kInput = value));
-	$: deaths = handleInput(dInput, (value: string) => (dInput = value));
-	$: assists = handleInput(aInput, (value: string) => (aInput = value));
+	$: k = handleInput(kInput, (value: string) => (kInput = value));
+	$: d = handleInput(dInput, (value: string) => (dInput = value));
+	$: a = handleInput(aInput, (value: string) => (aInput = value));
 </script>
 
 <div>

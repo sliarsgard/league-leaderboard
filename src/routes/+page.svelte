@@ -1,19 +1,19 @@
 <script lang="ts">
+	import type { PlayerWithIcon } from '$lib/types';
 	import type { PageData } from './$types';
 	import { getIconUrl, getTier, getTierPoints, getTierUrl } from '$lib/util';
-	import type { Player } from '$lib/types/database';
 
 	export let data: PageData;
 
 	let { players, supabase } = data;
 	supabase
 		.channel('any')
-		.on<Player>(
+		.on<PlayerWithIcon>(
 			'postgres_changes',
 			{ event: 'UPDATE', schema: 'public', table: 'players' },
 			(payload) => {
 				players = players
-					.map((player) => ({...player, ...(player.id === payload.new.id ? payload.new : player)}))
+					.map((player) => (player.id === payload.new.id ? payload.new : player))
 					.sort((a, b) => b.elo - a.elo);
 			}
 		)
@@ -59,7 +59,7 @@
 								<span>{getTierPoints(player.elo)}p</span>
 							</span>
 							<p class="text-2xl font-bold text-slate-100 w-1/4">
-								{`${player.wins} W - ${player.losses} L`}
+								{`${player.w} W - ${player.l} L`}
 							</p>
 						</div>
 					</div>

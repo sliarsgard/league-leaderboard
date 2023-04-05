@@ -2,12 +2,11 @@
 	import Kda from './KDA.svelte';
 	import Select from '$lib/components/Select.svelte';
 	import SelectChampion from './SelectChampion.svelte';
+	import type { PlayerGameDataInput, PlayerWithIcon } from '$lib/types';
 	import { getContext } from 'svelte';
-	import type { PlayerWithIcon } from '$lib/types/extended';
-	import type { PlayerGameDataInsert } from '$lib/types/database';
 
 	export let playersToSelect: PlayerWithIcon[];
-	export let playerData: PlayerGameDataInsert;
+	export let playerData: PlayerGameDataInput;
 	export let blueTeam:boolean
 
 	const filterPlayers: () => void = getContext('filterPlayers');
@@ -20,9 +19,9 @@
 >
 <div class="flex gap-2 items-end">
 	<SelectChampion bind:selectedChampion={playerData.champion} />
-	<Select onSelect={filterPlayers} bind:selectedId={playerData.player_id} data={playersToSelect} />
+	<Select onSelect={filterPlayers} bind:selectedId={playerData.id} data={playersToSelect} />
 </div>
-	<Kda bind:kills={playerData.kills} bind:deaths={playerData.deaths} bind:assists={playerData.assists} />
+	<Kda bind:k={playerData.k} bind:d={playerData.d} bind:a={playerData.a} />
 </div>
 
 <style lang="postcss">

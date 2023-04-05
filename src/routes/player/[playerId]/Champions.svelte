@@ -1,7 +1,7 @@
 <script lang="ts">
+	import type { Champion } from '$lib/types';
 	import { getContext } from 'svelte';
 	import type { PlayerPageGameData } from './+page.server';
-	import type { Champion } from '$lib/types/external';
 
 	export let playerGameData: PlayerPageGameData[];
 
@@ -19,9 +19,12 @@
 	const playedChampions = playerGameData
 		.map((gameData) => {
 			const champion = champions.find((champ) => champ.id === gameData.champion);
+			const won =
+				(gameData.games.blue_team_win && gameData.blue_team) ||
+				(!gameData.games.blue_team_win && !gameData.blue_team);
 			return {
-				wins: gameData.win ? 1 : 0,
-				losses: gameData.win ? 0 : 1,
+				wins: won ? 1 : 0,
+				losses: won ? 0 : 1,
 				kills: gameData.kills,
 				deaths: gameData.deaths,
 				assists: gameData.assists,

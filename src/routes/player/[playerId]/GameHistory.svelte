@@ -1,7 +1,7 @@
 <script lang="ts">
+	import type { Champion } from '$lib/types';
 	import { getContext } from 'svelte';
 	import type { PlayerPageGameData } from './+page.server';
-	import type { Champion } from '$lib/types/external';
 
     export let playerGameData: PlayerPageGameData[]
 	const champions = getContext<Champion[]>('champions');

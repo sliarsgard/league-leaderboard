@@ -1,5 +1,3 @@
-import type { Champion } from './types/external';
-
 export const getTier = (elo: number) => {
 	if (elo >= 1500) {
 		return 'Challenger';
@@ -48,18 +46,3 @@ export const getIconUrl = (iconId: number) =>
 
 export const getSummonerUrl = (name: string) =>
 	`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${name}`;
-
-export const CHAMPION_SUMMARY_URL =
-	'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-summary.json';
-
-/**
- * Fetches the champion data from the external source.
- * @param fetch The fetch function to use.
- * @returns The champion data.
- */
-export const getChampionSummary = async (fetch: typeof window.fetch): Promise<Champion[]> => {
-	const championData = await fetch(CHAMPION_SUMMARY_URL, { method: 'GET' });
-	const champions = await championData.json();
-	return champions;
-};
-
