@@ -27,7 +27,6 @@
 			assists: 0,
 			elo_change: 0,
 			win: false,
-			blue_team: team === 'blue',
 			game_id: 0,
 			player_id: 0
 		};
