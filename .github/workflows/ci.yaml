@@ -17,7 +17,7 @@ jobs:
 
       - name: Verify generated types are up-to-date
         run: |
-          supabase gen types typescript --local > src/lib/database.d.ts
+          supabase gen types typescript --local > src/lib/types/supabase.d.ts
           if [ "$(git diff --ignore-space-at-eol types.ts | wc -l)" -gt "0" ]; then
             echo "Detected uncommitted changes after build. See status below:"
             gif diff

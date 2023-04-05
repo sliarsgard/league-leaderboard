@@ -1,14 +1,7 @@
 <script lang="ts">
-	import type { PlayerWithIcon } from '$lib/types';
+	import type { PlayerWithIcon } from '$lib/types/extended';
 	import { getIconUrl } from '$lib/util';
-	import Label from './Label.svelte';
 
-	interface Player {
-		name: string;
-		elo: number;
-		id: number;
-	}
-	
 	export let data: PlayerWithIcon[];
 	export let onSelect: () => void;
 	export let selectedId: number;
@@ -49,7 +42,7 @@
 			active = true;
 		}
 		if (searchLst.length === 0)
-			addNew = [{id: -1,name: `Add new player "${searchStr}"`,elo: 0, profileIconId: 0, w: 0, l: 0, created_at: new Date().toDateString()}]
+			addNew = [{id: -1,name: `Add new player "${searchStr}"`,elo: 0, profileIconId: 0, wins: 0, losses: 0, created_at: new Date().toDateString()}]
 		else if (searchLst.length > 0)
 			addNew = []
 	};
