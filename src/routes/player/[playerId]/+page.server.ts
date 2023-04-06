@@ -23,7 +23,7 @@ export const load = (async ({ params, locals }) => {
 		.eq('player_id', playerId)
 		.returns<PlayerPageGameData[]>()
 		.limit(1, { foreignTable: 'games' })
-		.order('created_at', { ascending: false });
+		.order('games.created_at', { foreignTable: 'games', ascending: false });
 
 	const url =
 		'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-summary.json';
@@ -103,12 +103,12 @@ export const load = (async ({ params, locals }) => {
 		.sort((a, b) => b.games - a.games);
 
 	games.forEach((game) => {
-		const blueTeam = game.data?.player_game_data?.find(
+		const team = game.data?.player_game_data?.find(
 			(player) => player.player_id === playerId
-		)?.blue_team;
+		)?.team;
 		game.data?.player_game_data?.forEach((player) => {
 			if (player.player_id === playerId) return;
-			if (blueTeam === player.blue_team) {
+			if (team === player.team) {
 				if (playedWith.some((p) => p.player === player.player_id))
 					playedWith = playedWith.map((p) => {
 						if (p.player !== player.player_id) return p;
