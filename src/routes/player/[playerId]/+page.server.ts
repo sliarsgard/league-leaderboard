@@ -52,14 +52,15 @@ export const load = (async ({ params, locals }) => {
 
 	const players = await supabase.from('players').select('*');
 	let playedWith: { player: number; wins: number; losses: number }[] = [];
-	const getGames = playerGameData.data.map((game) =>
-		supabase
+	const gameIds = playerGameData.data.map((game) => game.game_id);
+	const gameRes = await supabase
 			.from('games')
 			.select('*, player_game_data(*)')
-			.eq('id', game.game_id)
-			.returns<GameWithPlayerGameData>()
-	);
-	const games = await Promise.all(getGames);
+			.in('id', gameIds)
+			.returns<GameWithPlayerGameData[]>()
+
+	if (gameRes.error) throw error(500, gameRes.error.message);
+	const games = gameRes.data;
 
 	if (players.data === null) throw error(404, 'Players not found');
 	const playedWithPlayers = (
@@ -68,17 +69,17 @@ export const load = (async ({ params, locals }) => {
 				if (player.id === playerId) return;
 				const [wins, losses] = games.reduce(
 					(acc, game) => {
-						if (!game.data) return acc;
-						if (game.data.player_game_data?.every((player) => player.player_id !== playerId))
+						if (!game) return acc;
+						if (game.player_game_data?.every((player) => player.player_id !== playerId))
 							return acc;
-						const profilePlayer = game.data.player_game_data?.find(
+						const profilePlayer = game.player_game_data?.find(
 							(player) => player.player_id === playerId
 						);
 						if (!profilePlayer) return acc;
-						const playerData = game.data.player_game_data?.find((p) => p.player_id === player.id);
+						const playerData = game.player_game_data?.find((p) => p.player_id === player.id);
 						const sameTeam = playerData?.team === profilePlayer.team;
 						if (!sameTeam) return acc;
-						if (game.data.winning_team === profilePlayer.team) return [acc[0] + 1, acc[1]];
+						if (game.winning_team === profilePlayer.team) return [acc[0] + 1, acc[1]];
 						return [acc[0], acc[1] + 1];
 					},
 					[0, 0]
@@ -103,19 +104,19 @@ export const load = (async ({ params, locals }) => {
 		.sort((a, b) => b.games - a.games);
 
 	games.forEach((game) => {
-		const team = game.data?.player_game_data?.find(
+		const team = game?.player_game_data?.find(
 			(player) => player.player_id === playerId
 		)?.team;
-		game.data?.player_game_data?.forEach((player) => {
+		game?.player_game_data?.forEach((player) => {
 			if (player.player_id === playerId) return;
 			if (team === player.team) {
 				if (playedWith.some((p) => p.player === player.player_id))
 					playedWith = playedWith.map((p) => {
 						if (p.player !== player.player_id) return p;
-						if (game.data.winning_team === player.team) return { ...p, wins: p.wins + 1 };
+						if (game.winning_team === player.team) return { ...p, wins: p.wins + 1 };
 						return { ...p, losses: p.losses + 1 };
 					});
-				else if (game.data.winning_team === player.team)
+				else if (game.winning_team === player.team)
 					playedWith.push({ player: player.player_id, wins: 1, losses: 0 });
 				else playedWith.push({ player: player.player_id, wins: 0, losses: 1 });
 			}
