@@ -22,20 +22,20 @@
 
 <div class="flex flex-col items-center pb-16">
 	<p
-		class="text-slate-200 px-4 py-4 border-b-4 border-slate-500 rounded-md text-5xl font-bold uppercase"
+		class="text-slate-200 text-center px-4 py-4 border-b-4 border-slate-500 rounded-md text-4xl font-bold uppercase"
 	>
 		Avetint's Leaderboard
 	</p>
 
-	<div class="flex flex-col items-center gap-6 mt-8 w-[36rem]">
+	<div class="flex flex-col items-center gap-6 w-full mt-8 sm:w-[36rem]">
 		{#each players as player, i}
 			<div class="w-full">
 				<a
 					data-sveltekit-preload-data
 					href={`/player/${player.id}`}
-					class="w-full flex gap-4 align-middle items-center"
+					class="w-full flex gap-1 sm:gap-4 align-middle items-center"
 				>
-					<span class="text-4xl text-center font-bold text-slate-200 w-11">{i + 1}</span>
+					<span class="text-4xl text-center font-bold text-slate-200 w-10">{i + 1}</span>
 					<div
 						class={`w-full rounded-xl border-4 flex bg-opacity-10 text-center hover:bg-opacity-20 active:bg-opacity-30 ${getTier(
 							player.elo
@@ -46,11 +46,11 @@
 							alt={player.profileIconId}
 							class="w-16 h-16 rounded-l-md"
 						/>
-						<div class="p-3 flex w-full items-center">
-							<span class="text-2xl font-bold text-slate-100 w-1/2 text-left flex gap-2">
+						<div class="p-1 sm:p-3 grid grid-cols-3 sm:grid-cols-4 items-center w-full">
+							<span class="col-span-2 text-lg sm:text-2xl font-bold text-slate-100 text-left flex gap-2">
 								<span>{player.name}</span>
 							</span>
-							<span class="text-2xl font-bold items-center text-slate-100 flex gap-2 w-1/4">
+							<span class="row-span-2 sm:row-span-1 text-2xl font-bold items-center text-slate-100 flex gap-2">
 								<img
 									src={getTierUrl(player.elo)}
 									alt={getTier(player.elo)}
@@ -58,9 +58,9 @@
 								/>
 								<span>{getTierPoints(player.elo)}p</span>
 							</span>
-							<p class="text-2xl font-bold text-slate-100 w-1/4">
+							<span class="text-left text-lg sm:text-2xl font-bold text-slate-100">
 								{`${player.wins} W - ${player.losses} L`}
-							</p>
+							</span>
 						</div>
 					</div>
 				</a>

@@ -3,6 +3,8 @@ import type { PageServerLoad } from './$types';
 import type { ChartData, ChartOptions, Point } from 'chart.js';
 import type { Game, PlayerGameData } from '$lib/types/database';
 import type { Champion } from '$lib/types/external';
+import { getSummonerData } from '$lib/utils.server';
+import type { PlayerWithIcon } from '$lib/types/extended';
 
 export interface PlayerPageGameData extends PlayerGameData {
 	games: Game;
@@ -11,7 +13,7 @@ interface GameWithPlayerGameData extends Game {
 	player_game_data: PlayerPageGameData[];
 }
 
-export const load = (async ({ params, locals }) => {
+export const load = (async ({ params, locals, fetch }) => {
 	const { supabase } = locals;
 	const playerId = parseInt(params.playerId);
 	if (isNaN(playerId)) throw error(404, 'Player not found');
@@ -124,9 +126,13 @@ export const load = (async ({ params, locals }) => {
 		});
 	});
 
+	const summonerData = await getSummonerData(player.data.name, fetch)
+
+	const playerData: PlayerWithIcon = { ...player.data, profileIconId: summonerData.profileIconId }
+
 	return {
 		champions,
-		player: player.data,
+		player: playerData,
 		playerGameData: playerGameData.data as PlayerPageGameData[],
 		chart,
 		playedWithPlayers
@@ -140,6 +146,7 @@ const getChart = (
 	return {
 		options: {
 			scales: {
+				
 				x: {
 					type: 'linear',
 					title: {
