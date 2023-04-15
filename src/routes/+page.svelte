@@ -34,7 +34,9 @@
 		const imageUrl2 = await htmlToImage.toBlob(node);
 		if (!imageUrl2) return;
 		showTopTierlist = false;
-		const { data, error } = await supabase.storage.from('image').upload('leaderboard.png',imageUrl2);
+		const { data, error } = await supabase.storage.from('image').upload('leaderboard.png',imageUrl2, {
+			upsert: true
+		});
 		console.log(data, error);
 		download(imageUrl, 'leaderboard.png', 'image/png');
 	};
@@ -115,7 +117,7 @@
 	<!-- {#if !showTopTierlist} -->
 	<div
 		id="topTierlist"
-		class="bg-slate-600 flex flex-col items-center gap-6 w-full mt-8 sm:w-[37rem] p-2"
+		class="bg-slate-600 flex flex-col items-center gap-6 w-full mt-8 sm:w-[37rem] p-2 pb-4"
 	>
 		{#each players.filter((_, i) => i < 3) as player, i}
 			<div class="w-full">
