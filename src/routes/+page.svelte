@@ -34,9 +34,11 @@
 		const imageUrl2 = await htmlToImage.toBlob(node);
 		if (!imageUrl2) return;
 		showTopTierlist = false;
-		const { data, error } = await supabase.storage.from('image').upload('leaderboard.png',imageUrl2, {
-			upsert: true
-		});
+		const { data, error } = await supabase.storage
+			.from('image')
+			.upload('leaderboard.png', imageUrl2, {
+				upsert: true
+			});
 		console.log(data, error);
 		download(imageUrl, 'leaderboard.png', 'image/png');
 	};
@@ -114,56 +116,56 @@
 			</div>
 		{/each}
 	</div>
-	<!-- {#if !showTopTierlist} -->
-	<div
-		id="topTierlist"
-		class="bg-slate-600 flex flex-col items-center gap-6 w-full mt-8 sm:w-[37rem] p-2 pb-4"
-	>
-		{#each players.filter((_, i) => i < 3) as player, i}
-			<div class="w-full">
-				<a
-					data-sveltekit-preload-data
-					href={`/player/${player.id}`}
-					class="w-full flex gap-1 sm:gap-4 align-middle items-center"
-				>
-					<span class="text-4xl text-center font-bold text-slate-200 w-10">{i + 1}</span>
-					<div
-						class={`w-full rounded-xl border-4 flex bg-opacity-10 text-center hover:bg-opacity-20 active:bg-opacity-30 ${getTier(
-							player.elo
-						).toLowerCase()}`}
+	{#if !showTopTierlist}
+		<div
+			id="topTierlist"
+			class="bg-slate-600 flex flex-col items-center gap-6 w-full mt-8 sm:w-[37rem] p-2 pb-4"
+		>
+			{#each players.filter((_, i) => i < 3) as player, i}
+				<div class="w-full">
+					<a
+						data-sveltekit-preload-data
+						href={`/player/${player.id}`}
+						class="w-full flex gap-1 sm:gap-4 align-middle items-center"
 					>
-						<img
-							src={getIconUrl(player.profileIconId)}
-							alt={player.profileIconId}
-							class="w-16 h-16 rounded-l-md"
-						/>
-						<div class="p-1 sm:p-3 grid grid-cols-3 sm:grid-cols-4 items-center w-full">
-							<span
-								class="col-span-2 text-lg sm:text-2xl font-bold text-slate-100 text-left flex gap-2"
-							>
-								<span>{player.name}</span>
-							</span>
-							<span
-								class="row-span-2 sm:row-span-1 text-2xl font-bold items-center text-slate-100 flex gap-2"
-							>
-								<img
-									src={getTierUrl(player.elo)}
-									alt={getTier(player.elo)}
-									class="w-10 h-10 rounded-full"
-								/>
-								<span>{getTierPoints(player.elo)}p</span>
-							</span>
-							<span class="text-left text-lg sm:text-2xl font-bold text-slate-100">
-								{`${player.wins} W - ${player.losses} L`}
-							</span>
+						<span class="text-4xl text-center font-bold text-slate-200 w-10">{i + 1}</span>
+						<div
+							class={`w-full rounded-xl border-4 flex bg-opacity-10 text-center hover:bg-opacity-20 active:bg-opacity-30 ${getTier(
+								player.elo
+							).toLowerCase()}`}
+						>
+							<img
+								src={getIconUrl(player.profileIconId)}
+								alt={player.profileIconId}
+								class="w-16 h-16 rounded-l-md"
+							/>
+							<div class="p-1 sm:p-3 grid grid-cols-3 sm:grid-cols-4 items-center w-full">
+								<span
+									class="col-span-2 text-lg sm:text-2xl font-bold text-slate-100 text-left flex gap-2"
+								>
+									<span>{player.name}</span>
+								</span>
+								<span
+									class="row-span-2 sm:row-span-1 text-2xl font-bold items-center text-slate-100 flex gap-2"
+								>
+									<img
+										src={getTierUrl(player.elo)}
+										alt={getTier(player.elo)}
+										class="w-10 h-10 rounded-full"
+									/>
+									<span>{getTierPoints(player.elo)}p</span>
+								</span>
+								<span class="text-left text-lg sm:text-2xl font-bold text-slate-100">
+									{`${player.wins} W - ${player.losses} L`}
+								</span>
+							</div>
 						</div>
-					</div>
-				</a>
-			</div>
-		{/each}
-		<div />
-	</div>
-	<!-- {/if} -->
+					</a>
+				</div>
+			{/each}
+			<div />
+		</div>
+	{/if}
 </div>
 
 <style lang="postcss">

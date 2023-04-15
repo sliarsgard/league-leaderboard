@@ -29,3 +29,7 @@
 <div class="flex flex-col items-center gap-4">
 	<slot />
 </div>
+<svelte:head>
+	<meta name="og:image" content="https://fhekdysjckiuimivvene.supabase.co/storage/v1/object/public/image/leaderboard.png" />
+	<meta name="og:title" content="Avetint Leaderboard" />
+</svelte:head>
