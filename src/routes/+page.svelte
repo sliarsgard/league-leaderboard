@@ -112,7 +112,7 @@
 	{#if showTopTierlist}
 		<div
 			id="topTierlist"
-			class="bg-slate-600 flex flex-col items-center gap-6 w-full mt-8 sm:w-[36rem]"
+			class="bg-slate-600 flex flex-col items-center gap-6 w-full mt-8 sm:w-[36rem] p-4 mb-16"
 		>
 			{#each players.filter((_, i) => i < 3) as player, i}
 				<div class="w-full">
