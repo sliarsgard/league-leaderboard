@@ -168,7 +168,8 @@
 
 <svelte:head>
 	<title>Avetint Leaderboard</title>
-	<meta name="description" content="" />
+	<meta name="og:title" content="Avetint Leaderboard" />
+	<meta name="og:image" content="https://fhekdysjckiuimivvene.supabase.co/storage/v1/object/public/image/leaderboard.png" />
 </svelte:head>
 
 <style lang="postcss">
