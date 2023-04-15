@@ -34,10 +34,7 @@
 		const imageUrl2 = await htmlToImage.toBlob(node);
 		if (!imageUrl2) return;
 		showTopTierlist = false;
-		const { data, error } = await supabase.storage.from('image').upload('',imageUrl2, {
-			contentType: 'image/png',
-			upsert: true
-		});
+		const { data, error } = await supabase.storage.from('image').upload('leaderboard.png',imageUrl2);
 		console.log(data, error);
 		download(imageUrl, 'leaderboard.png', 'image/png');
 	};
