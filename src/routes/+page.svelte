@@ -32,6 +32,7 @@
 		if (!node) return;
 		const imageUrl = await htmlToImage.toPng(node);
 		showTopTierlist = false;
+		console.log(imageUrl)
 		const {data, error} = await supabase.storage.from('image').upload('', imageUrl, {
 			contentType: 'image/png',
 			upsert: true
@@ -116,7 +117,7 @@
 	<!-- {#if !showTopTierlist} -->
 		<div
 			id="topTierlist"
-			class="bg-slate-600 flex flex-col items-center gap-6 w-full mt-8 sm:w-[37rem] p-2 mb-16"
+			class="bg-slate-600 flex flex-col items-center gap-6 w-full mt-8 sm:w-[37rem] p-2 pb-4"
 		>
 			{#each players.filter((_, i) => i < 3) as player, i}
 				<div class="w-full">
