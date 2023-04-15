@@ -27,7 +27,7 @@
 		Avetint's Leaderboard
 	</p>
 
-	<div class="flex flex-col items-center gap-6 w-full mt-8 sm:w-[36rem]">
+	<div class="flex flex-col items-center gap-6 w-full mt-8 sm:w-[36rem]" id="leaderboard">
 		{#each players as player, i}
 			<div class="w-full">
 				<a
@@ -80,6 +80,10 @@
 		{/each}
 	</div>
 </div>
+<svelte:head>
+	<title>Avetint Leaderboard</title>
+	<meta name="description" content="" />
+</svelte:head>
 
 <style lang="postcss">
 	div.challenger {
