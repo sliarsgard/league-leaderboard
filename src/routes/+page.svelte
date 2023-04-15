@@ -2,10 +2,12 @@
 	import type { PageData } from './$types';
 	import { getIconUrl, getTier, getTierPoints, getTierUrl } from '$lib/util';
 	import type { Player } from '$lib/types/database';
+	import * as htmlToImage from 'html-to-image';
+	import download from 'downloadjs';
 
 	export let data: PageData;
-
-	let { players, supabase } = data;
+	let showTopTierlist = false;
+	let { players, supabase, session } = data;
 	supabase
 		.channel('any')
 		.on<Player>(
@@ -13,12 +15,34 @@
 			{ event: 'UPDATE', schema: 'public', table: 'players' },
 			(payload) => {
 				players = players
-					.map((player) => ({...player, ...(player.id === payload.new.id ? payload.new : player)}))
+					.map((player) => ({
+						...player,
+						...(player.id === payload.new.id ? payload.new : player)
+					}))
 					.sort((a, b) => b.elo - a.elo);
 			}
 		)
 		.subscribe();
+
+	const createImage = async () => {
+		showTopTierlist = true;
+		const node = document.getElementById('leaderboard');
+		if (!node) return;
+		const imageUrl = await htmlToImage.toPng(node);
+		showTopTierlist = false;
+
+		download(imageUrl, 'leaderboard.png', 'image/png');
+	};
 </script>
+
+{#if session}
+		<button
+			on:click={createImage}
+			class="uppercase text-slate-500 font-mono font-bold p-1 text-xs fixed bottom-0 left-0"
+		>
+			Screenshot
+		</button>
+{/if}
 
 <div class="flex flex-col items-center pb-16">
 	<p
@@ -47,10 +71,14 @@
 							class="w-16 h-16 rounded-l-md"
 						/>
 						<div class="p-1 sm:p-3 grid grid-cols-3 sm:grid-cols-4 items-center w-full">
-							<span class="col-span-2 text-lg sm:text-2xl font-bold text-slate-100 text-left flex gap-2">
+							<span
+								class="col-span-2 text-lg sm:text-2xl font-bold text-slate-100 text-left flex gap-2"
+							>
 								<span>{player.name}</span>
 							</span>
-							<span class="row-span-2 sm:row-span-1 text-2xl font-bold items-center text-slate-100 flex gap-2">
+							<span
+								class="row-span-2 sm:row-span-1 text-2xl font-bold items-center text-slate-100 flex gap-2"
+							>
 								<img
 									src={getTierUrl(player.elo)}
 									alt={getTier(player.elo)}
@@ -71,15 +99,63 @@
 							alt={getTier(player.elo)}
 							class="w-10 h-10 rounded-full"
 						/>
-						<div class={`h-2 w-full line rounded-md ${getTier(
-							player.elo
-						).toLowerCase()} opacity-50`} />
+						<div
+							class={`h-2 w-full line rounded-md ${getTier(player.elo).toLowerCase()} opacity-50`}
+						/>
 					</div>
 				{/if}
 			</div>
 		{/each}
 	</div>
 </div>
+
+{#if showTopTierlist}
+	<div id="topTierlist" class="bg-slate-600">
+		{#each players.filter((_, i) => i < 3) as player, i}
+			<div class="w-full">
+				<a
+					data-sveltekit-preload-data
+					href={`/player/${player.id}`}
+					class="w-full flex gap-1 sm:gap-4 align-middle items-center"
+				>
+					<span class="text-4xl text-center font-bold text-slate-200 w-10">{i + 1}</span>
+					<div
+						class={`w-full rounded-xl border-4 flex bg-opacity-10 text-center hover:bg-opacity-20 active:bg-opacity-30 ${getTier(
+							player.elo
+						).toLowerCase()}`}
+					>
+						<img
+							src={getIconUrl(player.profileIconId)}
+							alt={player.profileIconId}
+							class="w-16 h-16 rounded-l-md"
+						/>
+						<div class="p-1 sm:p-3 grid grid-cols-3 sm:grid-cols-4 items-center w-full">
+							<span
+								class="col-span-2 text-lg sm:text-2xl font-bold text-slate-100 text-left flex gap-2"
+							>
+								<span>{player.name}</span>
+							</span>
+							<span
+								class="row-span-2 sm:row-span-1 text-2xl font-bold items-center text-slate-100 flex gap-2"
+							>
+								<img
+									src={getTierUrl(player.elo)}
+									alt={getTier(player.elo)}
+									class="w-10 h-10 rounded-full"
+								/>
+								<span>{getTierPoints(player.elo)}p</span>
+							</span>
+							<span class="text-left text-lg sm:text-2xl font-bold text-slate-100">
+								{`${player.wins} W - ${player.losses} L`}
+							</span>
+						</div>
+					</div>
+				</a>
+			</div>
+		{/each}
+	</div>
+{/if}
+
 <svelte:head>
 	<title>Avetint Leaderboard</title>
 	<meta name="description" content="" />
