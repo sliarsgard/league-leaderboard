@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import '../app.css';
 	import type { LayoutData } from './$types';
-	import htmlToImage from 'html-to-image';
+	import * as htmlToImage from 'html-to-image';
 	import download from 'downloadjs';
 
 	export let data: LayoutData;
