@@ -166,12 +166,6 @@
 	<!-- {/if} -->
 </div>
 
-<svelte:head>
-	<title>Avetint Leaderboard</title>
-	<meta name="og:title" content="Avetint Leaderboard" />
-	<meta name="og:image" content="https://fhekdysjckiuimivvene.supabase.co/storage/v1/object/public/image/leaderboard.png" />
-</svelte:head>
-
 <style lang="postcss">
 	div.challenger {
 		@apply border-amber-400 shadow-xl shadow-amber-300 bg-opacity-10 bg-amber-300 hover:bg-opacity-20 active:bg-opacity-30;
