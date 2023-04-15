@@ -34,7 +34,6 @@
 		const imageUrl2 = await htmlToImage.toBlob(node);
 		if (!imageUrl2) return;
 		showTopTierlist = false;
-		console.log(imageUrl2.);
 		const { data, error } = await supabase.storage.from('image').upload('',imageUrl2, {
 			contentType: 'image/png',
 			upsert: true
