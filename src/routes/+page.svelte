@@ -26,7 +26,7 @@
 
 	const createImage = async () => {
 		showTopTierlist = true;
-		const node = document.getElementById('leaderboard');
+		const node = document.getElementById('topTierlist');
 		if (!node) return;
 		const imageUrl = await htmlToImage.toPng(node);
 		showTopTierlist = false;
