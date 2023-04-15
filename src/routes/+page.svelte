@@ -116,7 +116,7 @@
 			</div>
 		{/each}
 	</div>
-	{#if !showTopTierlist}
+	{#if showTopTierlist}
 		<div
 			id="topTierlist"
 			class="bg-slate-600 flex flex-col items-center gap-6 w-full mt-8 sm:w-[37rem] p-2 pb-4"

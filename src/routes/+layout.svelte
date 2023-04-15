@@ -31,5 +31,7 @@
 </div>
 <svelte:head>
 	<meta name="og:image" content="https://fhekdysjckiuimivvene.supabase.co/storage/v1/object/public/image/leaderboard.png" />
+	<meta name="og:image:width" content="592" />
+	<meta name="og:image:height" content="304" />
 	<meta name="og:title" content="Avetint Leaderboard" />
 </svelte:head>
